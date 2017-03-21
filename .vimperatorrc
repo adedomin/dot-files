@@ -1,0 +1,11 @@
+set gui=none
+"set cpt=sbht
+"set gui=menu
+set hintchars=ajskdlf;
+noremap ; 10l
+noremap l 10k
+noremap k 10j
+noremap j 10h
+noremap K <C-d>
+noremap L <C-u>
+map <silent> <BS> :back<CR>
