@@ -5,14 +5,37 @@ env:
 extends: 'eslint:recommended'
 rules:
   indent:
-    - warn
-    - 4
+  - warn
+  - 4
   linebreak-style:
-    - warn
-    - unix
+  - warn
+  - unix
   quotes:
-    - warn
-    - single
+  - warn
+  - single
   semi:
-    - warn
-    - never
+  - warn
+  - never
+  brace-style:
+  - warn
+  - stroustrup
+  object-shorthand:
+  - warn
+  - always
+  quote-props:
+  - warn
+  - always
+  array-callback-return:
+  - error
+  prefer-template:
+  - warn
+  no-useless-escape:
+  - error
+  prefer-spread:
+  - warn
+  prefer-rest-params:
+  - warn
+  no-case-declarations:
+  - error
+  no-unneeded-ternary:
+  - error

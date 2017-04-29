@@ -13,7 +13,6 @@ alias ls='ls -FCa --color=always '
 alias sprungeus="curl -F 'sprunge=<-' http://sprunge.us"
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
-alias neofetch='neofetch --block_range 0 15 --colors 4 2 5 4 5 15 --ascii_colors 32 25'
 
 #1337 aliases
 alias clock="watch -t -n 1 'date +%I:%M:%S | figlet'"
@@ -23,15 +22,22 @@ alias fortune='fortune | cowsay'
 ##FUNCTIONS##
 ##USE WHEN APPROPRIATE##
 
+# $1 file path
+# $2 channel (optional)
+# $3 caption (optional)
+ghetty_up() {
+    curl 'https://images.ghetty.space/upload' \
+         -F "caption=${3}" \
+         -F "channel=${2:--nochan-}" \
+         -F "file=@${1};type=$(file --mime-type "$1" | grep -Po '(?<=: ).*')" \
+         | grep -Po -m 1 '(?<=Redirecting to ).*'
+}
+
 uridecode() {
     # change plus to space
     local uri="${1//+/ }"
     # convert % to hex literal and print
     printf '%b' "${uri//%/\\x}"
-}
-
-ghetty_up() {
-	scp ${1} website@ghetty.space:~/ghetty/scp_upload/
 }
 
 getmac() {
@@ -60,7 +66,33 @@ uriencode() {
     sed 's/%0A$//g'
 }
 
-export PATH=/usr/share/perl6/vendor/bin:~/.composer/vendor/bin:~/.cabal/bin:~/bin:$PATH
+# faster urandom source using openssl
+urandom() {
+    openssl enc -aes-256-ctr \
+        -pass pass:"$(
+            dd if=/dev/urandom bs=128 count=1 2>/dev/null \
+            | base64
+        )" \
+        -nosalt < /dev/zero 2>/dev/null
+}
+
+# $1 - number of hex chars to generate
+# return - hex string with a minimum length of 2
+# default - hex of 16 chars
+randomhex() {
+    count=$(( ${1:-16} / 2 ))
+    [ "$count" -le 0 ] && count=1
+    openssl enc -aes-256-ctr \
+        -pass pass:"$(
+            dd if=/dev/urandom bs=128 count=1 2>/dev/null \
+            | base64
+        )" \
+        -nosalt < <( dd if=/dev/zero bs="$count" count=1 2>/dev/null ) \
+    | xxd -ps \
+    | tr -d '\n'
+}
+
+export PATH=~/.local/bin:$PATH
 export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
 export GIT_PROMPT_EXECUTABLE="haskell"

@@ -56,16 +56,24 @@ let g:EclimCompletionMethod = 'omnifunc'
 
 " github markdown
 augroup pandoc_syntax
-    au! BufNewFile,BufRead *.md,*.markdown setlocal filetype=markdown.pandoc
+    au! BufNewFile,BufRead *.md,*.markdown setlocal filetype=markdown.pandoc spell
 augroup END
+
+" TeX
+au BufNewFile,BufRead *.tex setlocal spell
 
 " deerkin highlight
 au BufNewFile,BufRead *.deer setlocal filetype=deer
+
+" pug/jade template
+au BufNewFile,BufRead *.pug setl sts=2 ts=2 sw=2
 
 " html indenting
 au FileType html setl sts=2 ts=2 sw=2
 au FileType xhtml setl sts=2 ts=2 sw=2
 au FileType xml setl sts=2 ts=2 sw=2
+" yaml
+au FileType yaml setl sts=2 ts=2 sw=2
 
 " General
 set sts=4 ts=4 sw=4 ai
