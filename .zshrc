@@ -73,7 +73,7 @@ urandom() {
             dd if=/dev/urandom bs=128 count=1 2>/dev/null \
             | base64
         )" \
-        -nosalt < /dev/zero 2>/dev/null
+        -nosalt </dev/zero 2>/dev/null
 }
 
 # $1 - number of hex chars to generate
