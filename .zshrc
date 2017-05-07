@@ -1,13 +1,24 @@
-    ##SHORT ALIASES##
+##SHORT ALIASES##
 alias Zconfig='vim ~/.zshrc'
 alias Zsource='source ~/.zshrc'
 alias Zhistory='cat ~/.zhistory | grep '
 alias sudo='sudo '
-alias sued='sudo $EDITOR '
-alias inst='sudo apt install '
-alias remo='sudo apt remove '
-alias updt='sudo apt update && sudo apt upgrade'
-alias srch='apt search'
+if [ -n "$(which apt)" ]; then
+    alias inst='sudo apt install '
+    alias remo='sudo apt remove '
+    alias updt='sudo apt update && sudo apt upgrade'
+    alias srch='apt search'
+elif [ -n "$(which dnf)" ]; then
+    alias inst='sudo dnf install '
+    alias remo='sudo dnf remove '
+    alias updt='sudo dnf update '
+    alias srch='dnf search '
+elif [ -n "$(which yum)" ]; then
+    alias inst='sudo yum install '
+    alias remo='sudo yum remove '
+    alias updt='sudo yum update '
+    alias srch='yum search '
+fi
 alias exe='chmod +x '
 alias ls='ls -FCa --color=always '
 alias sprungeus="curl -F 'sprunge=<-' http://sprunge.us"
@@ -41,8 +52,8 @@ uridecode() {
 }
 
 getmac() {
-	ping $1 -c 1 >/dev/null
-	arp -a $1
+	ping "$1" -c 1 >/dev/null
+	arp -a "$1"
 }
 
 znc() {
@@ -92,6 +103,25 @@ randomhex() {
     | tr -d '\n'
 }
 
+# $1 - string to hash
+serv_color() {
+    local COL_ARR=("${(@k)fg}")
+    # will conflict with colorized terms
+    COL_ARR=(${COL_ARR/white})
+    # will conflict with colorized terms
+    COL_ARR=(${COL_ARR/black})
+
+    declare -i chr
+    chr=0
+    declare -i hash_val
+    hash_val=0
+    for (( i=1; i<${#1}+1; ++i )); do
+        chr=$(echo -n "${1[$i]}" | od -A n -t d1)
+        hash_val=$(( hash_val * 32 - hash_val + chr ))
+    done
+    echo "${COL_ARR[$((hash_val % ${#COL_ARR[@]} + 1))]}"
+}
+
 export PATH=~/.local/bin:$PATH
 export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
@@ -115,25 +145,10 @@ export GIT_PROMPT_EXECUTABLE="haskell"
 
  #ZSH SCRIPTS#
  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source ~/bin/zsh-syn/zsh-syntax-highlighting.zsh
-# source ~/src/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 
-# source ~/src/zsh-git-prompt/zshrc.sh
  
- #ZSH PROMPT#
- PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[cyan]%}%n%{$reset_color%}@%m%{$fg[cyan]%}>%{$reset_color%}
+PS1_COLOR=$(serv_color "$(hostname)")
+#PS1_COLOR=cyan
+#ZSH PROMPT#
+PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[$PS1_COLOR]%}%n%{$reset_color%}@%m%{$fg[$PS1_COLOR]%}>%{$reset_color%}
 └─%{$fg_bold[cyan]%}[%{$reset_color%}%~%{$fg_bold[cyan]%}]%{$reset_color%}─> "
 
-# PS1="%{$fg[white]%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%{$fg[white]%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%}%{$fg[white]%} %{$fg[white]%}<%{$fg[cyan]%}%n%{$reset_color%}@%{$fg[white]%}%m%{$fg[cyan]%}>%{$reset_color%}
-#%{$fg[white]%}└─%{$fg_bold[cyan]%}[%{$reset_color%}%{$fg[white]%}%~%{$fg_bold[cyan]%}]%{$reset_color%}%{$fg[white]%}─>%{$reset_color%} "
- 
-# PERL
-PATH="/home/prussian/perl5/bin${PATH+:}${PATH}"; export PATH;
-PERL5LIB="/home/prussian/perl5/lib/perl5${PERL5LIB+:}${PERL5LIB}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/prussian/perl5${PERL_LOCAL_LIB_ROOT+:}${PERL_LOCAL_LIB_ROOT}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/prussian/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/prussian/perl5"; export PERL_MM_OPT;
-
-# RUBY
-GEM_HOME=~/.vagrant.d/gems
-GEM_PATH=$GEM_HOME:/opt/vagrant/embedded/gems
-# PATH=/opt/vagrant/embedded/bin:$PATH
