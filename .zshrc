@@ -3,22 +3,22 @@ alias Zconfig='vim ~/.zshrc'
 alias Zsource='source ~/.zshrc'
 alias Zhistory='cat ~/.zhistory | grep '
 alias sudo='sudo '
-if [ -n "$(which apt)" ]; then
+if [ -n "$(which apt 2>/dev/null)" ]; then
     alias inst='sudo apt install '
     alias remo='sudo apt remove '
     alias updt='sudo apt update && sudo apt upgrade'
     alias srch='apt search'
-elif [ -n "$(which dnf)" ]; then
+elif [ -n "$(which dnf 2>/dev/null)" ]; then
     alias inst='sudo dnf install '
     alias remo='sudo dnf remove '
     alias updt='sudo dnf update '
     alias srch='dnf search '
-elif [ -n "$(which yum)" ]; then
+elif [ -n "$(which yum 2>/dev/null)" ]; then
     alias inst='sudo yum install '
     alias remo='sudo yum remove '
     alias updt='sudo yum update '
     alias srch='yum search '
-elif [ -n "$(which pacman)" ]; then
+elif [ -n "$(which pacman 2>/dev/null)" ]; then
     alias inst='sudo pacman -S '
     alias ainst='yaourt -S '
     alias remo='sudo pacman -R '
