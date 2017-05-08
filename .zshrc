@@ -18,6 +18,14 @@ elif [ -n "$(which yum)" ]; then
     alias remo='sudo yum remove '
     alias updt='sudo yum update '
     alias srch='yum search '
+elif [ -n "$(which pacman)" ]; then
+    alias inst='sudo pacman -S '
+    alias ainst='yaourt -S '
+    alias remo='sudo pacman -R '
+    alias aremo='yaourt -R '
+    alias updt='yaourt -Syu '
+    alias aupdt='yaourt -Syua '
+    alias srch='yaourt -Ss '
 fi
 alias exe='chmod +x '
 alias ls='ls -FCa --color=always '
@@ -152,3 +160,10 @@ PS1_COLOR=$(serv_color "$(hostname)")
 PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[$PS1_COLOR]%}%n%{$reset_color%}@%m%{$fg[$PS1_COLOR]%}>%{$reset_color%}
 └─%{$fg_bold[cyan]%}[%{$reset_color%}%~%{$fg_bold[cyan]%}]%{$reset_color%}─> "
 
+### XDG - may be defined by gnome or other de
+[ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
+[ -z "$XDG_CACHE_HOME" ] && XDG_CACHE_HOME="$HOME/.cache"
+[ -z "$XDG_DATA_HOME" ] && XDG_DATA_HOME="$HOME/.local/share"
+[ -z "$XDG_RUNTIME_DIR" ] && XDG_RUNTIME_DIR="$HOME/.local/run"
+[ -z "$XDG_DATA_DIRS" ] && XDG_DATA_DIRS="/usr/share:/usr/local/share"
+[ -z "$XDG_CONFIG_DIRS" ] && XDG_CONFIG_DIRS="/etc/xdg"
