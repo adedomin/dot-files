@@ -3,21 +3,29 @@ alias Zconfig='vim ~/.zshrc'
 alias Zsource='source ~/.zshrc'
 alias Zhistory='cat ~/.zhistory | grep '
 alias sudo='sudo '
-if [ -n "$(which apt)" ]; then
+if [ -n "$(which apt 2>/dev/null)" ]; then
     alias inst='sudo apt install '
     alias remo='sudo apt remove '
     alias updt='sudo apt update && sudo apt upgrade'
     alias srch='apt search'
-elif [ -n "$(which dnf)" ]; then
+elif [ -n "$(which dnf 2>/dev/null)" ]; then
     alias inst='sudo dnf install '
     alias remo='sudo dnf remove '
     alias updt='sudo dnf update '
     alias srch='dnf search '
-elif [ -n "$(which yum)" ]; then
+elif [ -n "$(which yum 2>/dev/null)" ]; then
     alias inst='sudo yum install '
     alias remo='sudo yum remove '
     alias updt='sudo yum update '
     alias srch='yum search '
+elif [ -n "$(which pacman 2>/dev/null)" ]; then
+    alias inst='sudo pacman -S '
+    alias ainst='yaourt -S '
+    alias remo='sudo pacman -R '
+    alias aremo='yaourt -R '
+    alias updt='yaourt -Syu '
+    alias aupdt='yaourt -Syua '
+    alias srch='yaourt -Ss '
 fi
 alias exe='chmod +x '
 alias ls='ls -FCa --color=always '
@@ -145,7 +153,11 @@ export GIT_PROMPT_EXECUTABLE="haskell"
  setopt hist_ignore_all_dups
 
  #ZSH SCRIPTS#
- source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ if [ -f /etc/redhat-release ] || [ -f /etc/debian_version ]; then 
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ else
+    source "$(locate -l 1 zsh-syntax-highlighting.zsh)"
+ fi 
  
 PS1_COLOR=$(serv_color "$(hostname)")
 #PS1_COLOR=cyan
@@ -168,3 +180,10 @@ PROMPT="└─> "
 #PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[$PS1_COLOR]%}%n%{$reset_color%}@%m%{$fg[$PS1_COLOR]%}>%{$reset_color%}
 #└─%{$fg_bold[cyan]%}[%{$reset_color%}%~%{$fg_bold[cyan]%}]%{$reset_color%}─> "
 
+### XDG - may be defined by gnome or other de
+[ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
+[ -z "$XDG_CACHE_HOME" ] && XDG_CACHE_HOME="$HOME/.cache"
+[ -z "$XDG_DATA_HOME" ] && XDG_DATA_HOME="$HOME/.local/share"
+[ -z "$XDG_RUNTIME_DIR" ] && XDG_RUNTIME_DIR="$HOME/.local/run"
+[ -z "$XDG_DATA_DIRS" ] && XDG_DATA_DIRS="/usr/share:/usr/local/share"
+[ -z "$XDG_CONFIG_DIRS" ] && XDG_CONFIG_DIRS="/etc/xdg"
