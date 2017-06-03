@@ -38,6 +38,7 @@ alias fortune='fortune | cowsay'
 # $3 caption (optional)
 ghetty_up() {
     curl 'https://images.ghetty.space/upload' \
+         --http1.1 \
          -F "caption=${3}" \
          -F "channel=${2:--nochan-}" \
          -F "file=@${1};type=$(file --mime-type "$1" | grep -Po '(?<=: ).*')" \
@@ -149,6 +150,21 @@ export GIT_PROMPT_EXECUTABLE="haskell"
 PS1_COLOR=$(serv_color "$(hostname)")
 #PS1_COLOR=cyan
 #ZSH PROMPT#
-PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[$PS1_COLOR]%}%n%{$reset_color%}@%m%{$fg[$PS1_COLOR]%}>%{$reset_color%}
-└─%{$fg_bold[cyan]%}[%{$reset_color%}%~%{$fg_bold[cyan]%}]%{$reset_color%}─> "
+# BOX: │ ├ ┐ └ ┘ ┌ ┼ ─ ┤ ╵ ╷ ╴ ╶
+HOST_P="$(hostname -s)"
+USER_P="${fg[$PS1_COLOR]}$USER$reset_color"
+COLOR_SIZE="${fg[$PS1_COLOR]}$reset_color"
+COLOR_SIZE=${#COLOR_SIZE}
+precmd() {
+    RIGHTVAR="${PWD//$HOME/~}"
+    LEFT="┌─[$USER_P@$HOST_P]─[$RIGHTVAR]"
+    if (( ${#LEFT} - COLOR_SIZE >= COLUMNS )); then
+        LEFT="┌─[$USER_P@$HOST_P]
+├─[$RIGHTVAR]"
+    fi
+    print "${LEFT}"
+}
+PROMPT="└─> "
+#PS1="%{${ret_status}%}┌─%{$fg_bold[cyan]%}[%{$reset_color%}%D %*%{$fg_bold[cyan]%}]%{$reset_color%} <%{$fg[$PS1_COLOR]%}%n%{$reset_color%}@%m%{$fg[$PS1_COLOR]%}>%{$reset_color%}
+#└─%{$fg_bold[cyan]%}[%{$reset_color%}%~%{$fg_bold[cyan]%}]%{$reset_color%}─> "
 

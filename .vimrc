@@ -42,9 +42,9 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_javascript_checkers = ['eslint']
 
 " vim-licenses
-let g:licenses_copyright_holders_name = 'prussian <genunrest@gmail.com>'
+let g:licenses_copyright_holders_name = 'Anthony DeDominic <adedomin@gmail.com>'
 "let g:licenses_authors_name = 'prussian <genunrest@gmail.com>'
-let g:licenses_default_commands = ['gpl', 'apache', 'mit', 'isc']
+let g:licenses_default_commands = ['gpl', 'affero', 'apache', 'mit', 'isc']
 
 " NERDTree
 autocmd StdinReadPre * let s:std_in=1
