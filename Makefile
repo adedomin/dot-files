@@ -5,7 +5,7 @@ OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
 all:
 
 $(DIRS):
-	mkdir -P $@
+	mkdir -p $@
 
 $(HOME)/%: % | $(DIRS)
 	cp -r $< $@
