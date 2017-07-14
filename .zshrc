@@ -153,11 +153,7 @@ export GIT_PROMPT_EXECUTABLE="haskell"
  setopt hist_ignore_all_dups
 
  #ZSH SCRIPTS#
- if [ -f /etc/redhat-release ] || [ -f /etc/debian_version ]; then 
-    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
- else
-    source "$(locate -l 1 zsh-syntax-highlighting.zsh)"
- fi 
+ source ~/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
  
 PS1_COLOR=$(serv_color "$(hostname)")
 #PS1_COLOR=cyan
