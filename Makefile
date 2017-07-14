@@ -1,5 +1,4 @@
-OBJ = $(wildcard *)
-OBJ := $(filter-out Makefile,$(OBJ))
+OBJ = .eslintrc .config/ .vim .vimrc .vimperatorrc .zshrc .tmux.config
 OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
 
 all:
