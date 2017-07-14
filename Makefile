@@ -1,4 +1,4 @@
-OBJ = .eslintrc .config/ .vim .vimrc .vimperatorrc .zshrc .tmux.config
+OBJ = .eslintrc.yml .config/ .vim .vimrc .vimperatorrc .zshrc .tmux.conf
 OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
 
 all:
