@@ -64,7 +64,7 @@ uridecode() {
     # change plus to space
     local uri="${1//+/ }"
     # convert % to hex literal and print
-    echo -e "${uri//\%/\\x}"
+    printf '%b\n' "${uri//\%/\\x}"
 }
 
 getmac() {
@@ -85,12 +85,11 @@ back ()
 }
 
 uriencode() {
-    tr -d $'\n' <<< "$1" |
-    curl -Gso /dev/null \
+    echo -nE "$1" \
+    | curl -Gso /dev/null \
         -w '%{url_effective}' \
-        --data-urlencode @- '' |
-    cut -c 3- |
-    sed 's/%0A$//g'
+        --data-urlencode @- '' \
+    | cut -c 3-
 }
 
 # faster urandom source using openssl
@@ -123,8 +122,8 @@ color_hash() {
     len=${#1}
     # i=1 because zsh indexing
     for (( i=1; i<len+1; ++i )); do
-        chr=$(printf '%d' \'"${1[$i]}")
-        hash_val=$(( hash_val * 32 - hash_val + chr ))
+        printf -v chr '%d' \'"${1[$i]}"
+        hash_val='hash_val * 32 - hash_val + chr'
     done
     echo "$hash_val"
 }
@@ -172,7 +171,7 @@ USER_P="${fg[$PS1_COLOR]}$USER$reset_color"
 COLOR_SIZE="${fg[$PS1_COLOR]}$reset_color"
 COLOR_SIZE=${#COLOR_SIZE}
 precmd() {
-    RIGHTVAR="${PWD//$HOME/~}"
+    RIGHTVAR="${PWD/$HOME/~}"
     LEFT="┌─[$USER_P@$HOST_P]─[$RIGHTVAR]"
     if (( ${#LEFT} - COLOR_SIZE >= COLUMNS )); then
         LEFT="┌─[$USER_P@$HOST_P]
