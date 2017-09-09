@@ -48,16 +48,21 @@ alias fortune='fortune | cowsay'
 ##FUNCTIONS##
 ##USE WHEN APPROPRIATE##
 
-# $1 file path
-# $2 channel (optional)
-# $3 caption (optional)
+# $1 - file
+# $2 - channels, comma separated (optional)
+# $3 - caption (optional)
 ghetty_up() {
-    curl 'https://images.ghetty.space/upload' \
-         --http1.1 \
-         -F "caption=${3}" \
-         -F "channel=${2:--nochan-}" \
-         -F "file=@${1};type=$(file --mime-type "$1" | grep -Po '(?<=: ).*')" \
-         | grep -Po -m 1 '(?<=Redirecting to ).*'
+    if [ "$1" = '-l' ] || [ "$1" = '--list' ]; then
+        curl -sSf 'https://images.ghetty.space/channels' \
+        | jq -r '.'
+        return
+    fi
+    curl -sSf 'https://images.ghetty.space/upload' \
+        --http1.1 \
+        -F "caption=${3}" \
+        -F "channel=${2}" \
+        -F "file=@${1};type=$(file --mime-type "$1" | grep -Po '(?<=: ).*')" \
+    | jq -r '.href'
 }
 
 uridecode() {
