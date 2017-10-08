@@ -143,7 +143,12 @@ serv_color() {
     echo "${COL_ARR[$(($(color_hash "$1") % ${#COL_ARR[@]} + 1))]}"
 }
 
-export PATH=~/.local/bin:$PATH
+# $* a set of valid maths
+calc() {
+    gawk 'BEGIN { print '"$*"' }'
+}
+
+export PATH=~/.local/bin:~/.yarn/bin:$PATH
 export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
 export GIT_PROMPT_EXECUTABLE="haskell"
@@ -159,9 +164,10 @@ compinit
 bindkey -v
 
 #ZSH HISTORY#
-export HISTSIZE=2000 
+export HISTSIZE=4000
 export HISTFILE="$HOME/.zhistory"
 export SAVEHIST=$HISTSIZE
+setopt inc_append_history
 setopt hist_ignore_all_dups
 
 #ZSH SCRIPTS#

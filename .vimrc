@@ -5,7 +5,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
-Plugin 'VundleVim/Vundle.vim'
+Plugin 'vundle/Vundle.vim'
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Plugin 'shougo/neocomplete'
 Plugin 'altercation/vim-colors-solarized'
@@ -16,6 +16,7 @@ Plugin 'vim-pandoc/vim-pandoc-syntax'
 Plugin 'antoyo/vim-licenses'
 Plugin 'vim-scripts/loremipsum'
 Plugin 'vim-scripts/VOoM'
+Plugin 'tpope/vim-unimpaired'
 call vundle#end()
 
 filetype plugin indent on
