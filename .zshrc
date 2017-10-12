@@ -179,13 +179,22 @@ PS1_COLOR=$(serv_color "$(hostname)")
 # BOX: │ ├ ┐ └ ┘ ┌ ┼ ─ ┤ ╵ ╷ ╴ ╶
 HOST_P="$(hostname -s)"
 USER_P="${fg[$PS1_COLOR]}$USER$reset_color"
-COLOR_SIZE="${fg[$PS1_COLOR]}$reset_color"
+red_exit="${fg[red]}"
+green_exit="${fg[green]}"
+COLOR_SIZE="${fg[$PS1_COLOR]}$reset_color${red_exit}$reset_color"
 COLOR_SIZE=${#COLOR_SIZE}
 precmd() {
+    last_exit=$?
+    
+    case "$last_exit" in
+        0) last_exit="${green_exit}${last_exit}$reset_color" ;;
+        *) last_exit="${red_exit}${last_exit}$reset_color" ;;
+    esac
+
     RIGHTVAR="${PWD/$HOME/~}"
-    LEFT="┌─[$USER_P@$HOST_P]─[$RIGHTVAR]"
+    LEFT="┌─[$USER_P@$HOST_P]─[$last_exit]─[$RIGHTVAR]"
     if (( ${#LEFT} - COLOR_SIZE >= COLUMNS )); then
-        LEFT="┌─[$USER_P@$HOST_P]
+        LEFT="┌─[$USER_P@$HOST_P]-[$last_exit]
 ├─[$RIGHTVAR]"
     fi
     print "${LEFT}"
