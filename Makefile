@@ -8,9 +8,6 @@ OBJ = .zshrc \
 	  $(shell find .local/share/zsh-syntax-highlighting -type f) \
 
 DIRS = $(HOME)/.zshrc.d \
-	   $(HOME)/.config/gtk-3.0 \
-	   $(HOME)/.vim/bundle/Vundle.vim \
-	   $(HOME)/.local/share/zsh-syntax-highlighting \
 
 OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
 
