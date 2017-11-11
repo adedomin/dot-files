@@ -17,6 +17,7 @@ Plugin 'antoyo/vim-licenses'
 Plugin 'vim-scripts/loremipsum'
 Plugin 'vim-scripts/VOoM'
 Plugin 'tpope/vim-unimpaired'
+Plugin 'sheerun/vim-polyglot'
 call vundle#end()
 
 filetype plugin indent on
@@ -69,11 +70,12 @@ au BufNewFile,BufRead *.deer setlocal filetype=deer
 " pug/jade template
 au BufNewFile,BufRead *.pug setl sts=2 ts=2 sw=2
 
-" html indenting
+" html/xml indenting
 au FileType html setl sts=2 ts=2 sw=2
 au FileType xhtml setl sts=2 ts=2 sw=2
 au FileType xml setl sts=2 ts=2 sw=2
-" yaml
+au FileType ant setl sts=2 ts=2 sw=2
+
 au FileType yaml setl sts=2 ts=2 sw=2
 
 " General
@@ -91,10 +93,7 @@ syntax on
 set t_Co=256 
 "let g:solarized_termcolors=256
 set background=light
-"colorscheme spacemacs-theme
 colorscheme solarized
-"colorscheme twilight
-"colorscheme base16-eighties
 
 " Mapping
 noremap \ $
@@ -105,3 +104,6 @@ noremap j h
 noremap K <C-d>
 noremap L <C-u>  
 noremap q <C-r>
+noremap / /\v
+vnoremap / /\v
+inoremap <S-Tab> <C-V><Tab>

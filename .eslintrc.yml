@@ -12,7 +12,7 @@ rules:
     - warn
     - unix
   # double quotes?
-  # what are we, a json document?
+  # what are we, ecma3?
   quotes:
     - warn
     - single
@@ -23,7 +23,7 @@ rules:
     - warn
     - never
   no-console: 
-    - error
+    - warn
     - allow:
       - error
   # use {}

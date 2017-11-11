@@ -148,6 +148,15 @@ calc() {
     gawk 'BEGIN { print '"$*"' }'
 }
 
+# join arguments by common delimiter
+# $1 - the delimiter
+# ${@:1} - the strings to join
+join_by() {
+    local IFS="$1"
+    shift
+    printf '%s\n' "${*}"
+}
+
 export PATH=~/.local/bin:~/.yarn/bin:$PATH
 export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
