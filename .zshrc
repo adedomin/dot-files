@@ -119,16 +119,31 @@ randomhex() {
 }
 
 # $1 - get hash of string
-# common colored name algo
+# common hash algo
 color_hash() {
+    declare -i chr hash_val i len
+    chr=0
+    hash_val=5381
+    len=${#1}
+    # i=1 because zsh indexing
+    for (( i=1; i<=len; ++i )); do
+        printf -v chr '%d' \'"${1[$i]}"
+        hash_val='((hash_val << 5) + hash_val) + chr'
+    done
+    echo "$hash_val"
+}
+
+# $1 - get hash of string
+# sdbm hash algo
+color_hash2() {
     declare -i chr hash_val i len
     chr=0
     hash_val=0
     len=${#1}
     # i=1 because zsh indexing
-    for (( i=1; i<len+1; ++i )); do
+    for (( i=1; i<=len; ++i )); do
         printf -v chr '%d' \'"${1[$i]}"
-        hash_val='hash_val * 32 - hash_val + chr'
+        hash_val='chr + (hash_val << 6) + (hash_val << 16) - hash_val'
     done
     echo "$hash_val"
 }
@@ -136,16 +151,15 @@ color_hash() {
 # $1 - string to hash
 serv_color() {
     local COL_ARR=("${(@k)fg}")
+    local filter=(white black default)
     # will conflict with colorized terms
-    COL_ARR=(${COL_ARR/white})
-    # will conflict with colorized terms
-    COL_ARR=(${COL_ARR/black})
-    echo "${COL_ARR[$(($(color_hash "$1") % ${#COL_ARR[@]} + 1))]}"
+    COL_ARR=("${(@)COL_ARR:|filter}")
+    echo "${COL_ARR[$(($(color_hash2 "$1") % ${#COL_ARR[@]} + 1))]}"
 }
 
 # $* a set of valid maths
 calc() {
-    gawk 'BEGIN { print '"$*"' }'
+    gawk --bignum 'BEGIN { print '"$*"' }'
 }
 
 # join arguments by common delimiter
