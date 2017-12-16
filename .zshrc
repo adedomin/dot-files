@@ -130,7 +130,7 @@ color_hash() {
         printf -v chr '%d' \'"${1[$i]}"
         hash_val='((hash_val << 5) + hash_val) + chr'
     done
-    echo "$hash_val"
+    echo "$(( abs(hash_val) ))"
 }
 
 # $1 - get hash of string
@@ -145,7 +145,7 @@ color_hash2() {
         printf -v chr '%d' \'"${1[$i]}"
         hash_val='chr + (hash_val << 6) + (hash_val << 16) - hash_val'
     done
-    echo "$hash_val"
+    echo "$(( abs(hash_val) ))"
 }
 
 # $1 - string to hash
@@ -185,6 +185,8 @@ colors
 promptinit
 compinit
 bindkey -v
+# basic math
+zmodload zsh/mathfunc
 
 #ZSH HISTORY#
 export HISTSIZE=4000
