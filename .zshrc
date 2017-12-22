@@ -178,6 +178,7 @@ export GIT_PROMPT_EXECUTABLE="haskell"
 
 ##ZSH SETTINGS##
 setopt autocd
+fpath=("$HOME"/.local/share/zsh-completions/src "${fpath[@]}")
 autoload -U colors 
 autoload -U compinit
 autoload -U promptinit

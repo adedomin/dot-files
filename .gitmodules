@@ -4,3 +4,6 @@
 [submodule ".local/share/zsh-syntax-highlighting"]
 	path = .local/share/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+[submodule ".local/share/zsh-completions"]
+	path = .local/share/zsh-completions
+	url = git://github.com/zsh-users/zsh-completions.git
