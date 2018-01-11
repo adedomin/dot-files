@@ -9,6 +9,7 @@ OBJ = .zshrc \
 	  $(shell find .local/share/zsh-completions -type f)
 
 DIRS = $(HOME)/.zshrc.d \
+	   $(HOME)/.vimrc.d
 
 OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
 

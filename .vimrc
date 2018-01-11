@@ -107,3 +107,8 @@ noremap q <C-r>
 noremap / /\v
 vnoremap / /\v
 inoremap <S-Tab> <C-V><Tab>
+
+" source customizations
+for f in split(glob('~/.vimrc.d/*.vim'), '\n')
+    exe 'source' f
+endfor
