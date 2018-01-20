@@ -52,7 +52,7 @@ alias fortune='fortune | cowsay'
 # $2 - channels, comma separated (optional)
 # $3 - caption (optional)
 ghetty_up() {
-    if [ "$1" = '-l' ] || [ "$1" = '--list' ]; then
+    if [[ "$1" = '-l' || "$1" = '--list' ]]; then
         curl -sSf 'https://images.ghetty.space/channels' \
         | jq -r '.'
         return
@@ -99,7 +99,9 @@ uriencode() {
 
 # faster urandom source using openssl
 urandom() {
-    head --bytes=128 /dev/urandom 2>/dev/null \
+    head \
+        --bytes=128 \
+        /dev/urandom \
     | base64 \
     | openssl enc -aes-256-ctr \
         -in /dev/zero \
@@ -111,12 +113,13 @@ urandom() {
 # $1 - number of bytes of hex to generate
 # return - hex string with a minimum length of 2
 # default - hex of 16 chars
-randomhex() {
-    head --bytes="${1:-8}" /dev/urandom \
-    | xxd -ps \
-    | tr -d '\n'
-    echo ''
-}
+# see: openssl rand -hex
+# randomhex() {
+#     head --bytes="${1:-8}" /dev/urandom \
+#     | xxd -ps \
+#     | tr -d '\n'
+#     echo ''
+# }
 
 # $1 - get hash of string
 # common hash algo
@@ -171,7 +174,7 @@ join_by() {
     printf '%s\n' "${*}"
 }
 
-export PATH=~/.local/bin:~/.yarn/bin:$PATH
+export PATH=~/.local/bin:~/.local/share/yarn/bin:$PATH
 export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
 export GIT_PROMPT_EXECUTABLE="haskell"
@@ -188,9 +191,12 @@ compinit
 bindkey -v
 # basic math
 zmodload zsh/mathfunc
+# bash/ksh style globs
+setopt kshglob
+setopt no_bare_glob_qual
 
 #ZSH HISTORY#
-export HISTSIZE=4000
+export HISTSIZE=10000
 export HISTFILE="$HOME/.zhistory"
 export SAVEHIST=$HISTSIZE
 setopt inc_append_history
@@ -228,12 +234,12 @@ precmd() {
 PROMPT="└─> "
 
 ### XDG - may be defined by gnome or other de
-[ -z "$XDG_CONFIG_HOME" ] && XDG_CONFIG_HOME="$HOME/.config"
-[ -z "$XDG_CACHE_HOME"  ] && XDG_CACHE_HOME="$HOME/.cache"
-[ -z "$XDG_DATA_HOME"   ] && XDG_DATA_HOME="$HOME/.local/share"
-[ -z "$XDG_RUNTIME_DIR" ] && XDG_RUNTIME_DIR="$HOME/.local/run"
-[ -z "$XDG_DATA_DIRS"   ] && XDG_DATA_DIRS="/usr/share:/usr/local/share"
-[ -z "$XDG_CONFIG_DIRS" ] && XDG_CONFIG_DIRS="/etc/xdg"
+[[ -z "$XDG_CONFIG_HOME" ]] && XDG_CONFIG_HOME="$HOME/.config"
+[[ -z "$XDG_CACHE_HOME"  ]] && XDG_CACHE_HOME="$HOME/.cache"
+[[ -z "$XDG_DATA_HOME"   ]] && XDG_DATA_HOME="$HOME/.local/share"
+[[ -z "$XDG_RUNTIME_DIR" ]] && XDG_RUNTIME_DIR="$HOME/.local/run"
+[[ -z "$XDG_DATA_DIRS"   ]] && XDG_DATA_DIRS="/usr/share:/usr/local/share"
+[[ -z "$XDG_CONFIG_DIRS" ]] && XDG_CONFIG_DIRS="/etc/xdg"
 
 # source customizations
 for file in "$HOME"/.zshrc.d/*; do
