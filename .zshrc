@@ -14,11 +14,13 @@ elif which dnf 2>/dev/null >&2; then
     alias remo='sudo dnf remove '
     alias updt='sudo dnf update '
     alias srch='dnf search '
+    alias what='dnf whatprovides '
 elif which yum 2>/dev/null >&2; then
     alias inst='sudo yum install '
     alias remo='sudo yum remove '
     alias updt='sudo yum update '
     alias srch='yum search '
+    alias what='yum whatprovides '
 elif which pacman 2>/dev/null >&2; then
     alias inst='sudo pacman -S '
     alias ainst='yaourt -S '
@@ -34,10 +36,12 @@ alias sprungeus="curl -F 'sprunge=<-' http://sprunge.us"
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
 
-# distros like fedora have a "vimx" for their +clipboard 
-# vim
+# distros like fedora have a "vimx" for their +clipboard vim
 if which vimx 2>/dev/null >&2; then
     alias vim="vimx"
+    export EDITOR=vimx
+else
+    export EDITOR=vim
 fi
 
 #1337 aliases
