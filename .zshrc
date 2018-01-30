@@ -179,7 +179,6 @@ join_by() {
 }
 
 export PATH=~/.local/bin:~/.local/share/yarn/bin:$PATH
-export EDITOR=vim
 export JAVA_FONTS=/usr/share/fonts/TTF
 export GIT_PROMPT_EXECUTABLE="haskell"
 
