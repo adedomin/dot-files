@@ -90,10 +90,17 @@ syntax on
 
 " Color
 "let base16colorspace=256
-set t_Co=256 
+set t_Co=256
 "let g:solarized_termcolors=256
 set background=light
 colorscheme solarized
+
+" show tabs and trailing as special
+set list
+set listchars=trail:\ ,tab:>\ 
+" cursor column
+set cursorcolumn
+set cursorline
 
 " Mapping
 noremap \ $
@@ -102,7 +109,7 @@ noremap l k
 noremap k j
 noremap j h
 noremap K <C-d>
-noremap L <C-u>  
+noremap L <C-u>
 noremap q <C-r>
 noremap / /\v
 vnoremap / /\v
