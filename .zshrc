@@ -4,24 +4,24 @@ alias Zconfig='vim ~/.zshrc'
 alias Zsource='source ~/.zshrc'
 alias Zhistory='cat ~/.zhistory | grep '
 alias sudo='sudo '
-if which apt 2>/dev/null >&2; then
+if type apt 2>/dev/null >&2; then
     alias inst='sudo apt install '
     alias remo='sudo apt remove '
     alias updt='sudo apt update && sudo apt upgrade'
     alias srch='apt search'
-elif which dnf 2>/dev/null >&2; then
+elif type dnf 2>/dev/null >&2; then
     alias inst='sudo dnf install '
     alias remo='sudo dnf remove '
     alias updt='sudo dnf update '
     alias srch='dnf search '
     alias what='dnf whatprovides '
-elif which yum 2>/dev/null >&2; then
+elif type yum 2>/dev/null >&2; then
     alias inst='sudo yum install '
     alias remo='sudo yum remove '
     alias updt='sudo yum update '
     alias srch='yum search '
     alias what='yum whatprovides '
-elif which pacman 2>/dev/null >&2; then
+elif type pacman 2>/dev/null >&2; then
     alias inst='sudo pacman -S '
     alias ainst='yaourt -S '
     alias remo='sudo pacman -R '
@@ -37,7 +37,7 @@ alias clbin="curl -F 'clbin=<-' https://clbin.com"
 alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
 
 # distros like fedora have a "vimx" for their +clipboard vim
-if which vimx 2>/dev/null >&2; then
+if type vimx 2>/dev/null >&2; then
     alias vim="vimx"
     export EDITOR=vimx
 else
@@ -46,7 +46,7 @@ fi
 
 #1337 aliases
 alias clock="watch -t -n 1 'date +%I:%M:%S | figlet'"
-alias fortune='fortune | cowsay'
+#alias fortune='fortune | cowsay'
 
 
 ##FUNCTIONS##
