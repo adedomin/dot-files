@@ -4,10 +4,12 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
+"Plugin 'scrooloose/syntastic'
+Plugin 'w0rp/ale'
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-Plugin 'shougo/neocomplete'
+"Plugin 'shougo/neocomplete'
+Plugin 'maralla/completor.vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'colepeters/spacemacs-theme.vim'
 Plugin 'grod/grod-vim-colors'
@@ -22,6 +24,18 @@ call vundle#end()
 
 filetype plugin indent on
 
+" completor.vim config
+let g:completor_python_binary = '/usr/bin/python3'
+let g:completor_node_binary = '/usr/bin/node'
+let g:completor_clang_binary = '/usr/bin/clang'
+set splitbelow
+
+" ALE config
+let g:ale_open_list = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = 0
+let g:ale_awk_gawk_options = "--source 'BEGIN { exit 0 } END { exit 0 }'"
+
 " GUI config
 "set guioptions-=T
 "set guioptions-=m
@@ -30,18 +44,17 @@ set guioptions=
 set guifont=DeJaVu\ Sans\ Mono\ 11
 
 " Syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:neocomplete#enable_at_startup = 1
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-"let g:syntastic_disabled_filetypes=['tex']
-
-let g:syntastic_javascript_checkers = ['eslint']
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+"
+"let g:neocomplete#enable_at_startup = 1
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 0
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
+""let g:syntastic_disabled_filetypes=['tex']
+"let g:syntastic_javascript_checkers = ['eslint']
 
 " vim-licenses
 let g:licenses_copyright_holders_name = 'Anthony DeDominic <adedomin@gmail.com>'
