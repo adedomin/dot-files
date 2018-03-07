@@ -237,12 +237,31 @@ precmd() {
 PROMPT="└─> "
 
 ### XDG - may be defined by gnome or other de
-[[ -z "$XDG_CONFIG_HOME" ]] && XDG_CONFIG_HOME="$HOME/.config"
-[[ -z "$XDG_CACHE_HOME"  ]] && XDG_CACHE_HOME="$HOME/.cache"
-[[ -z "$XDG_DATA_HOME"   ]] && XDG_DATA_HOME="$HOME/.local/share"
-[[ -z "$XDG_RUNTIME_DIR" ]] && XDG_RUNTIME_DIR="$HOME/.local/run"
-[[ -z "$XDG_DATA_DIRS"   ]] && XDG_DATA_DIRS="/usr/share:/usr/local/share"
-[[ -z "$XDG_CONFIG_DIRS" ]] && XDG_CONFIG_DIRS="/etc/xdg"
+[[ -z "$XDG_CONFIG_HOME" ]] && export XDG_CONFIG_HOME="$HOME/.config"
+[[ -z "$XDG_CACHE_HOME"  ]] && export XDG_CACHE_HOME="$HOME/.cache"
+[[ -z "$XDG_DATA_HOME"   ]] && export XDG_DATA_HOME="$HOME/.local/share"
+[[ -z "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR="$HOME/.local/run"
+[[ -z "$XDG_DATA_DIRS"   ]] && export XDG_DATA_DIRS="/usr/share:/usr/local/share:$HOME/.local/share"
+[[ -z "$XDG_CONFIG_DIRS" ]] && export XDG_CONFIG_DIRS="/etc/xdg"
+# if connected over ssh, look for SSH_AUTH_SOCK in systemd env
+[[ -n "$SSH_CLIENT"      ]] && {
+    if SSH_AUTH_SOCK="$(
+        systemctl --user show-environment \
+        | sed -n '
+            b start
+            :quit
+            q 0
+            :start
+            s/SSH_AUTH_SOCK=//p
+            t quit
+            $ { q 1 }
+        '
+    )"; then
+        export SSH_AUTH_SOCK
+    else
+        unset SSH_AUTH_SOCK
+    fi
+}
 
 # source customizations
 for file in "$HOME"/.zshrc.d/*; do
