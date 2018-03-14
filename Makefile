@@ -22,3 +22,9 @@ $(HOME)/%: % | $(DIRS)
 	install -D $< $@
 
 install: $(OBJ_HOME)
+
+run-update:
+	git pull
+	git submodule update --recursive --remote
+
+update: run-update install
