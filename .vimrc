@@ -30,6 +30,9 @@ let g:completor_python_binary = '/usr/bin/python3'
 let g:completor_node_binary = '/usr/bin/node'
 let g:completor_clang_binary = '/usr/bin/clang'
 set splitbelow
+" omnifunc triggers
+let g:completor_css_omni_trigger = '([\w-]+|@[\w-]*|[\w-]+:\s*[\w-]*)$'
+let g:completor_html_omni_trigger = '(<[^>]*(?!>)|[\w]+)'
 
 " ALE config
 let g:ale_open_list = 1
