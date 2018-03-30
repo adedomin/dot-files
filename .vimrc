@@ -38,17 +38,27 @@ let g:completor_html_omni_trigger = '(<[^>]*(?!>)|[\w]+)'
 let g:ale_open_list = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'python':     ['flake8'],
+\   'cpp':        ['clang'],
+\   'c':          ['clang'],
+\   'sh':         ['shellcheck'],
+\   'zsh':        [],
+\}
 
 " GUI config
 set guioptions=
 set guifont=DeJaVu\ Sans\ Mono\ 11
+
+" neocomplete
+"let g:neocomplete#enable_at_startup = 1
 
 " Syntastic
 "set statusline+=%#warningmsg#
 "set statusline+=%{SyntasticStatuslineFlag()}
 "set statusline+=%*
 "
-"let g:neocomplete#enable_at_startup = 1
 "let g:syntastic_always_populate_loc_list = 1
 "let g:syntastic_auto_loc_list = 0
 "let g:syntastic_check_on_open = 1
@@ -58,7 +68,6 @@ set guifont=DeJaVu\ Sans\ Mono\ 11
 
 " vim-licenses
 let g:licenses_copyright_holders_name = 'Anthony DeDominic <adedomin@gmail.com>'
-"let g:licenses_authors_name = 'prussian <genunrest@gmail.com>'
 let g:licenses_default_commands = ['gpl', 'affero', 'apache', 'mit', 'isc']
 
 " NERDTree
