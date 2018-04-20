@@ -1,4 +1,3 @@
-ZSH_EXTRA="$HOME/.zshrc.d"
 ##SHORT ALIASES##
 alias Zconfig='vim ~/.zshrc'
 alias Zsource='source ~/.zshrc'
@@ -69,6 +68,31 @@ ghetty_up() {
     | jq -r '.href'
 }
 
+encrypt_file() {
+    case "$1" in -h|--help)
+        print -u 2 -r -- 'usage: encrypt_file target [destination]'
+        print -u 2 -r -- 'if - is given for target, the contents of STDIN are encrypted.'
+        return 1
+    ;; esac
+
+    [[ ! -f $1 && $1 != '-' ]] && {
+        print -u 2 -r -- "Error: no such file ($1)"
+        return 1
+    }
+
+    local file=$1
+    local dest=$2
+    if [[ -z $dest && $file == '-' ]]; then
+        dest='-'
+    elif [[ -z $dest ]]; then
+        dest=${file}.gpg
+    fi
+
+    gpg2 --sign --encrypt --output $dest -- $file || {
+        print -u 2 -r -- 'Note: set default-recipient-self in ~/.gnupg/gpg.conf'
+    }
+}
+
 uridecode() {
     # change plus to space
     local uri="${1//+/ }"
@@ -77,8 +101,8 @@ uridecode() {
 }
 
 getmac() {
-	ping "$1" -c 1 >/dev/null
-	ip neigh show "$1"
+    ping $1 -c 1 >/dev/null
+    ip neigh show $1
 }
 
 znc() {
@@ -87,14 +111,14 @@ znc() {
 
 back ()
 {
-	for x in $(seq "$1");
-	do
-		cd ..;
-	done
+    integer i
+    for (( i=0; i<$1; ++i )); do
+        cd ..;
+    done
 }
 
 uriencode() {
-    echo -nE "$1" \
+    printf '%s' $1 \
     | curl -Gso /dev/null \
         -w '%{url_effective}' \
         --data-urlencode @- '' \
@@ -157,11 +181,11 @@ color_hash2() {
 
 # $1 - string to hash
 serv_color() {
-    local COL_ARR=("${(@k)fg}")
+    local col_arr=("${(@k)fg}")
     local filter=(white black default)
     # will conflict with colorized terms
-    COL_ARR=("${(@)COL_ARR:|filter}")
-    echo "${COL_ARR[$(($(color_hash2 "$1") % ${#COL_ARR[@]} + 1))]}"
+    col_arr=("${(@)col_arr:|filter}")
+    echo "${col_arr[$(($(color_hash2 "$1") % ${#col_arr[@]} + 1))]}"
 }
 
 # $* a set of valid maths
@@ -180,12 +204,11 @@ join_by() {
 
 export PATH=~/.local/bin:~/.local/share/yarn/bin:$PATH
 export JAVA_FONTS=/usr/share/fonts/TTF
-export GIT_PROMPT_EXECUTABLE="haskell"
 
 ##ZSH SETTINGS##
 setopt autocd
 fpath=("$HOME"/.local/share/zsh-completions/src "${fpath[@]}")
-autoload -U colors 
+autoload -U colors
 autoload -U compinit
 autoload -U promptinit
 colors
@@ -218,21 +241,22 @@ red_exit="${fg[red]}"
 green_exit="${fg[green]}"
 COLOR_SIZE="${fg[$PS1_COLOR]}$reset_color${red_exit}$reset_color"
 COLOR_SIZE=${#COLOR_SIZE}
+
 precmd() {
-    last_exit=$?
-    
+    local last_exit=$?
+
     case "$last_exit" in
         0) last_exit="${green_exit}${last_exit}$reset_color" ;;
         *) last_exit="${red_exit}${last_exit}$reset_color" ;;
     esac
 
-    RIGHTVAR="${PWD/$HOME/~}"
-    LEFT="┌─[$USER_P@$HOST_P]─[$last_exit]─[$RIGHTVAR]"
-    if (( ${#LEFT} - COLOR_SIZE >= COLUMNS )); then
-        LEFT="┌─[$USER_P@$HOST_P]-[$last_exit]
-├─[$RIGHTVAR]"
+    local right="${PWD/$HOME/~}"
+    local left="┌─[$USER_P@$HOST_P]─[$last_exit]─[$right]"
+    if (( ${#left} - COLOR_SIZE >= COLUMNS )); then
+        left="┌─[$USER_P@$HOST_P]-[$last_exit]
+├─[$right]"
     fi
-    print "${LEFT}"
+    print -r -- $left
 }
 PROMPT="└─> "
 
@@ -264,6 +288,6 @@ PROMPT="└─> "
 }
 
 # source customizations
-for file in "$HOME"/.zshrc.d/*; do
-    source "$file"
-done 2> /dev/null
+for file in $HOME/.zshrc.d/*; do
+    source $file
+done
