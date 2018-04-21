@@ -55,11 +55,19 @@ alias clock="watch -t -n 1 'date +%I:%M:%S | figlet'"
 # $2 - channels, comma separated (optional)
 # $3 - caption (optional)
 ghetty_up() {
-    if [[ "$1" = '-l' || "$1" = '--list' ]]; then
-        curl -sSf 'https://images.ghetty.space/channels' \
-        | jq -r '.'
-        return
-    fi
+    case "$1" in
+        -h|--help)
+            print -u 2 -r -- \
+                'usage: ghetty_up [-l|--list] picture.ext \#channel "caption"'
+            return 1
+        ;;
+        -l|--list)
+            curl -sSf 'https://images.ghetty.space/channels' \
+            | jq -r '.[] | .'
+            return
+        ;;
+    esac
+
     curl -sSf 'https://images.ghetty.space/upload' \
         --http1.1 \
         -F "caption=${3}" \
@@ -70,8 +78,10 @@ ghetty_up() {
 
 encrypt_file() {
     case "$1" in -h|--help)
-        print -u 2 -r -- 'usage: encrypt_file target [destination]'
-        print -u 2 -r -- 'if - is given for target, the contents of STDIN are encrypted.'
+        print -u 2 -r -- \
+            'usage: encrypt_file target [destination]'
+        print -u 2 -r -- \
+            'if - is given for target, the contents of STDIN are encrypted.'
         return 1
     ;; esac
 
@@ -109,8 +119,13 @@ znc() {
     irssi -c "znc-$1"
 }
 
-back ()
-{
+back () {
+    case "$1" in ''|0|*[!0-9]*)
+        print -l -u 2 -r -- \
+            'usage: back NUMBER' \
+            'go back NUMBER directories' ;;
+    esac
+
     integer i
     for (( i=0; i<$1; ++i )); do
         cd ..;
