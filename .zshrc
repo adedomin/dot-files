@@ -77,13 +77,13 @@ ghetty_up() {
 }
 
 encrypt_file() {
-    case "$1" in -h|--help)
+    case "$1" in ''|-h|--help)
         print -u 2 -r -- \
             'usage: encrypt_file target [destination]'
         print -u 2 -r -- \
             'if - is given for target, the contents of STDIN are encrypted.'
         return 1
-    ;; esac
+    esac
 
     [[ ! -f $1 && $1 != '-' ]] && {
         print -u 2 -r -- "Error: no such file ($1)"
@@ -123,7 +123,8 @@ back () {
     case "$1" in ''|0|*[!0-9]*)
         print -l -u 2 -r -- \
             'usage: back NUMBER' \
-            'go back NUMBER directories' ;;
+            'go back NUMBER directories'
+        return 1
     esac
 
     integer i
@@ -133,11 +134,15 @@ back () {
 }
 
 uriencode() {
-    printf '%s' $1 \
-    | curl -Gso /dev/null \
-        -w '%{url_effective}' \
-        --data-urlencode @- '' \
-    | cut -c 3-
+    local LANG=C # split letters by 8bit char, should preserve encoding.
+    local escaped_query=
+    for chr in ${(s::)1}; do
+        case $chr in
+            [-_.~[:alnum:]]) escaped_query+=$chr ;;
+            *) printf -v chr %%%02x "'$chr"; escaped_query+=$chr ;;
+        esac
+    done
+    printf '%s\n' $escaped_query
 }
 
 # faster urandom source using openssl
