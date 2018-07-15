@@ -172,31 +172,27 @@ urandom() {
 # $1 - get hash of string
 # common hash algo
 color_hash() {
-    declare -i chr hash_val i len
-    chr=0
-    hash_val=5381
-    len=${#1}
+    local LANG=C
+    declare -i chr=0 hash=5381 i=1 len=$#1
     # i=1 because zsh indexing
     for (( i=1; i<=len; ++i )); do
         printf -v chr '%d' \'"${1[$i]}"
-        hash_val='((hash_val << 5) + hash_val) + chr'
+        hash='((hash << 5) + hash) + chr'
     done
-    echo "$(( abs(hash_val) ))"
+    print -r -- "$(( abs(hash) ))"
 }
 
 # $1 - get hash of string
 # sdbm hash algo
 color_hash2() {
-    declare -i chr hash_val i len
-    chr=0
-    hash_val=0
-    len=${#1}
+    local LANG=C #8bit char
+    declare -i chr=0 hash=0 i=1 len=$#1
     # i=1 because zsh indexing
     for (( i=1; i<=len; ++i )); do
         printf -v chr '%d' \'"${1[$i]}"
-        hash_val='chr + (hash_val << 6) + (hash_val << 16) - hash_val'
+        hash='chr + (hash << 6) + (hash << 16) - hash'
     done
-    echo "$(( abs(hash_val) ))"
+    print -r -- "$(( abs(hash) ))"
 }
 
 # $1 - string to hash

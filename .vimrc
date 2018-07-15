@@ -36,13 +36,14 @@ let g:completor_html_omni_trigger = '(<[^>]*(?!>)|[\w]+)'
 
 " ALE config
 let g:ale_open_list = 1
+let g:ale_completion_enabled = 0
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
 let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'python':     ['flake8'],
-\   'cpp':        ['clang'],
-\   'c':          ['clang'],
+\   'cpp':        [],
+\   'c':          [],
 \   'sh':         ['shellcheck'],
 \   'zsh':        [],
 \}
@@ -146,6 +147,6 @@ vnoremap / /\v
 inoremap <S-Tab> <C-V><Tab>
 
 " source customizations
-for g:f in split(glob('~/.vimrc.d/*.vim'), '\n')
-    exe 'source' g:f
+for g:vfile in glob('~/.vimrc.d/*.vim', 0, 1)
+    exe 'source' g:vfile
 endfor
