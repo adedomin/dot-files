@@ -221,6 +221,9 @@ join_by() {
 export PATH=~/.local/bin:~/.local/share/yarn/bin:$PATH
 export JAVA_FONTS=/usr/share/fonts/TTF
 
+#ZSH SCRIPTS#
+source ~/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 ##ZSH SETTINGS##
 setopt autocd
 fpath=("$HOME"/.local/share/zsh-completions/src "${fpath[@]}")
@@ -235,7 +238,7 @@ bindkey -v
 zmodload zsh/mathfunc
 # bash/ksh style globs
 setopt kshglob
-setopt no_bare_glob_qual
+#setopt no_bare_glob_qual
 
 #ZSH HISTORY#
 export HISTSIZE=10000
@@ -244,9 +247,6 @@ export SAVEHIST=$HISTSIZE
 setopt inc_append_history
 setopt hist_ignore_all_dups
 
-#ZSH SCRIPTS#
-source ~/.local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
- 
 #ZSH PROMPT#
 PS1_COLOR=$(serv_color "$(hostname)")
 #PS1_COLOR=cyan
