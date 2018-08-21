@@ -30,7 +30,7 @@ elif type pacman 2>/dev/null >&2; then
     alias srch='yaourt -Ss '
 fi
 alias exe='chmod +x '
-alias ls='ls -FCa --color=always '
+alias ls='ls -FCa --color=always --hyperlink=always '
 alias sprungeus="curl -F 'sprunge=<-' http://sprunge.us"
 alias clbin="curl -F 'clbin=<-' https://clbin.com"
 alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
