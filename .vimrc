@@ -1,4 +1,5 @@
 set nocompatible
+scriptencoding utf8
 filetype off
 
 " rtp
@@ -129,6 +130,13 @@ colorscheme solarized
 " show tabs and trailing as special
 set list
 set listchars=trail:\ ,tab:>\ 
+" show leading spaces as special
+" highlight Conceal gui=bold cterm=bold guibg=LightGray ctermbg=LightGray guifg=NONE ctermfg=NONE
+augroup leading_spaces
+    autocmd!
+    autocmd BufWinEnter,BufReadPre * setlocal conceallevel=2 concealcursor=nv
+    autocmd BufWinEnter,BufReadPre * syntax match LeadingSpace /\(^ *\)\@<= / containedin=ALL conceal cchar=·
+augroup END
 " cursor column
 set cursorcolumn
 set cursorline
