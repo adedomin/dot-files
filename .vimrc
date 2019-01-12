@@ -2,38 +2,57 @@ set nocompatible
 scriptencoding utf8
 filetype off
 
-" rtp
-set runtimepath+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'scrooloose/nerdtree'
-"Plugin 'scrooloose/syntastic'
-Plugin 'w0rp/ale'
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-"Plugin 'shougo/neocomplete'
-Plugin 'maralla/completor.vim'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'colepeters/spacemacs-theme.vim'
-Plugin 'grod/grod-vim-colors'
-Plugin 'aquach/vim-http-client'
-Plugin 'vim-pandoc/vim-pandoc-syntax'
-Plugin 'antoyo/vim-licenses'
-Plugin 'vim-scripts/loremipsum'
-Plugin 'vim-scripts/VOoM'
-Plugin 'tpope/vim-unimpaired'
-Plugin 'sheerun/vim-polyglot'
-call vundle#end()
+" Set Config Path
+set runtimepath^=~/.vim runtimepath+=~/.local/share/vim
+let &packpath = &runtimepath
+
+" Plugins
+call plug#begin('~/.local/share/vim/bundle')
+Plug 'scrooloose/nerdtree'
+Plug 'w0rp/ale'
+Plug 'rstacruz/sparkup', {'rtp': 'vim/'}
+Plug 'altercation/vim-colors-solarized'
+Plug 'colepeters/spacemacs-theme.vim'
+Plug 'grod/grod-vim-colors'
+Plug 'aquach/vim-http-client'
+Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'antoyo/vim-licenses'
+Plug 'vim-scripts/loremipsum'
+Plug 'vim-scripts/VOoM'
+Plug 'tpope/vim-unimpaired'
+Plug 'sheerun/vim-polyglot'
+Plug 'reasonml-editor/vim-reason-plus'
+Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'zchee/deoplete-jedi'
+if !has('nvim')
+    Plug 'roxma/nvim-yarp'
+    Plug 'roxma/vim-hug-neovim-rpc'
+endif
+call plug#end()
 
 filetype plugin indent on
 
+"" maralla Completor.vim, DEPRECATED
 " completor.vim config
-let g:completor_python_binary = '/usr/bin/python3'
-let g:completor_node_binary = '/usr/bin/node'
-let g:completor_clang_binary = '/usr/bin/clang'
-set splitbelow
-" omnifunc triggers
-let g:completor_css_omni_trigger = '([\w-]+|@[\w-]*|[\w-]+:\s*[\w-]*)$'
-let g:completor_html_omni_trigger = '(<[^>]*(?!>)|[\w]+)'
+"let g:completor_python_binary = '/usr/bin/python3'
+"let g:completor_node_binary = '/usr/bin/node'
+"let g:completor_clang_binary = '/usr/bin/clang'
+"set splitbelow
+"" omnifunc triggers
+"let g:completor_css_omni_trigger = '([\w-]+|@[\w-]*|[\w-]+:\s*[\w-]*)$'
+"let g:completor_html_omni_trigger = '(<[^>]*(?!>)|[\w]+)'
+
+"" Language Servers
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+    \ 'reason': ['~/.local/bin/ocaml-language-server', '--stdio'],
+    \ 'javascript.jsx': ['~/.local/bin/js-langserver', '--stdio'],
+    \ 'c' : ['/usr/bin/clangd'],
+    \ 'cpp' : ['/usr/bin/clangd'],
+    \}
+    " 'python': ['/usr/local/bin/pyls'],
+    " \ }
 
 " ALE config
 let g:ale_open_list = 1
@@ -53,8 +72,8 @@ let g:ale_linters = {
 set guioptions=
 set guifont=DeJaVu\ Sans\ Mono\ 11
 
-" neocomplete
-"let g:neocomplete#enable_at_startup = 1
+" deoplete
+let g:deoplete#enable_at_startup = 1
 
 " Syntastic
 "set statusline+=%#warningmsg#
@@ -154,7 +173,7 @@ noremap / /\v
 vnoremap / /\v
 inoremap <S-Tab> <C-V><Tab>
 
-" source customizations
-for g:vfile in glob('~/.vimrc.d/*.vim', 0, 1)
+" source per-machine customizations
+for g:vfile in glob('~/.config/vimrc.d/*.vim', 0, 1)
     exe 'source' g:vfile
 endfor
