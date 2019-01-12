@@ -174,6 +174,6 @@ vnoremap / /\v
 inoremap <S-Tab> <C-V><Tab>
 
 " source per-machine customizations
-for g:vfile in glob('~/.config/vimrc.d/*.vim', 0, 1)
+for g:vfile in glob('~/.config/vim/custom/*.vim', 0, 1)
     exe 'source' g:vfile
 endfor

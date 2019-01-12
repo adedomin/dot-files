@@ -1,27 +1,44 @@
-OBJ = .zshrc \
-	  .vimrc \
-	  .tmux.conf \
-      .eslintrc.yml \
-	  .vimperatorrc \
-	  .local/share/vim/autoplay/plug.vim \
-	  $(shell find .config/gtk-3.0 -type f) \
-	  $(shell find .local/share/zsh-syntax-highlighting -type f) \
-	  $(shell find .local/share/zsh-completions -type f)
+config_home = .config
+data_home = .local/share
+objects = $(config_home)/zsh/zshrc \
+	      $(config_home)/vim/init.vim \
+	      $(config_home)/tmux/tmux.conf \
+	      $(config_home)/eslint/eslintrc.yml \
+	      $(data_home)/vim/autoplay/plug.vim \
+	      $(shell find $(config_home)/gtk-3.0 -type f) \
+	      $(shell find $(data_home)/zsh-syntax-highlighting -type f) \
+	      $(shell find $(data_home)/zsh-completions -type f)
 
-DIRS = $(HOME)/.zshrc.d \
-	   $(HOME)/.config/vimrc.d
+# where -- is a separator
+symlinks = $(HOME)/.zshrc--$(HOME)/$(config_home)/zsh/zshrc \
+	       $(HOME)/.vimrc--$(HOME)/$(config_home)/vim/init.vim \
+	       $(HOME)/.tmux.conf--$(HOME)/$(config_home)/tmux/tmux.conf \
+	       $(HOME)/.eslintrc.yml--$(HOME)/$(config_home)/eslint/eslintrc.yml
 
-OBJ_HOME = $(addprefix $(HOME)/,$(OBJ))
+symlink_targets = \
+	$(foreach sym,$(symlinks),$(word 1,$(subst --, ,$(sym))))
+
+
+dirs = $(HOME)/$(config_home)/zsh/custom \
+	   $(HOME)/$(config_home)/vim/custom
+
+obj_home = $(addprefix $(HOME)/,$(objects))
 
 all:
 
-$(DIRS):
+$(dirs):
 	mkdir -p $@
 
-$(HOME)/%: % | $(DIRS)
+$(HOME)/%: % | $(dirs)
 	install -D $< $@
 
-install: $(OBJ_HOME)
+$(symlink_targets): | $(dirs)
+	sh -c '[ -f "$$1" ] && ln -sf "$$1" "$$2"' _ \
+		'$(patsubst $@--%,%,$(filter $@--%,$(symlinks)))' \
+		'$@'
+
+install: $(obj_home) \
+	     $(symlink_targets)
 
 run-update:
 	git pull
