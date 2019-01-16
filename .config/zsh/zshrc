@@ -304,6 +304,6 @@ PROMPT="└─> "
 }
 
 # source customizations
-for file in $HOME/.zshrc.d/*; do
+for file in $HOME/.config/zsh/custom/*.zsh; do
     source $file
 done

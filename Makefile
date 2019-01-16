@@ -4,7 +4,7 @@ objects = $(config_home)/zsh/zshrc \
 	      $(config_home)/vim/init.vim \
 	      $(config_home)/tmux/tmux.conf \
 	      $(config_home)/eslint/eslintrc.yml \
-	      $(data_home)/vim/autoplay/plug.vim \
+	      $(data_home)/vim/autoload/plug.vim \
 	      $(shell find $(config_home)/gtk-3.0 -type f) \
 	      $(shell find $(data_home)/zsh-syntax-highlighting -type f) \
 	      $(shell find $(data_home)/zsh-completions -type f)

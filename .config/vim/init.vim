@@ -23,11 +23,13 @@ Plug 'tpope/vim-unimpaired'
 Plug 'sheerun/vim-polyglot'
 Plug 'reasonml-editor/vim-reason-plus'
 Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'zchee/deoplete-jedi'
 if !has('nvim')
+    Plug 'Shougo/deoplete.nvim'
     Plug 'roxma/nvim-yarp'
     Plug 'roxma/vim-hug-neovim-rpc'
+else
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 endif
 call plug#end()
 
@@ -45,12 +47,12 @@ filetype plugin indent on
 
 "" Language Servers
 let g:LanguageClient_serverCommands = {
-    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-    \ 'reason': ['~/.local/bin/ocaml-language-server', '--stdio'],
-    \ 'javascript.jsx': ['~/.local/bin/js-langserver', '--stdio'],
-    \ 'c' : ['/usr/bin/clangd'],
-    \ 'cpp' : ['/usr/bin/clangd'],
-    \}
+\   'rust': ['~/.cargo/bin/rustup', 'run', 'nightly', 'rls'],
+\   'reason': ['~/.local/bin/reason-language-server'],
+\   'javascript.jsx': ['~/.local/bin/js-langserver', '--stdio'],
+\   'c' : ['/usr/bin/clangd'],
+\   'cpp' : ['/usr/bin/clangd'],
+\}
     " 'python': ['/usr/local/bin/pyls'],
     " \ }
 
