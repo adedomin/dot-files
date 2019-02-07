@@ -36,12 +36,13 @@ alias clbin="curl -F 'clbin=<-' https://clbin.com"
 alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
 
 # distros like fedora have a "vimx" for their +clipboard vim
-if type vimx 2>/dev/null >&2; then
-    alias vim="vimx"
-    export EDITOR=vimx
-else
-    export EDITOR=vim
-fi
+#if type vimx 2>/dev/null >&2; then
+#    alias vim="vimx"
+#    export EDITOR=vimx
+#else
+#    export EDITOR=vim
+#fi
+export EDITOR=nvim
 
 #1337 aliases
 alias clock="watch -t -n 1 'date +%I:%M:%S | figlet'"
