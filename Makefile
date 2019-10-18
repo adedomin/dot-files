@@ -1,7 +1,7 @@
 config_home = .config
 data_home = .local/share
-objects = $(config_home)/zsh/zshrc \
-	      $(config_home)/vim/init.vim \
+objects = $(shell find $(config_home)/zsh -type f) \
+	      $(config_home)/nvim/init.vim \
 	      $(config_home)/tmux/tmux.conf \
 	      $(config_home)/eslint/eslintrc.yml \
 	      $(data_home)/vim/autoload/plug.vim \
@@ -11,7 +11,6 @@ objects = $(config_home)/zsh/zshrc \
 
 # where -- is a separator
 symlinks = $(HOME)/.zshrc--$(HOME)/$(config_home)/zsh/zshrc \
-	       $(HOME)/.vimrc--$(HOME)/$(config_home)/vim/init.vim \
 	       $(HOME)/.tmux.conf--$(HOME)/$(config_home)/tmux/tmux.conf \
 	       $(HOME)/.eslintrc.yml--$(HOME)/$(config_home)/eslint/eslintrc.yml
 
@@ -20,7 +19,7 @@ symlink_targets = \
 
 
 dirs = $(HOME)/$(config_home)/zsh/custom \
-	   $(HOME)/$(config_home)/vim/custom
+	   $(HOME)/$(config_home)/nvim/custom
 
 obj_home = $(addprefix $(HOME)/,$(objects))
 

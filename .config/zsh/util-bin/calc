@@ -1,0 +1,2 @@
+#!/bin/sh
+exec gawk --bignum 'BEGIN { print '"$*"' }'

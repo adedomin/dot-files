@@ -1,0 +1,2 @@
+#!/bin/sh
+exec irssi -c "znc-$1"

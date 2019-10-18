@@ -1,0 +1,10 @@
+#!/bin/sh
+head \
+    --bytes=128 \
+    /dev/urandom \
+| base64 \
+| openssl enc -aes-256-ctr \
+    -in /dev/zero \
+    -nosalt \
+    -pass stdin \
+    2>/dev/null

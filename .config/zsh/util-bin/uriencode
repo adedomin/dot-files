@@ -1,0 +1,10 @@
+#!/bin/zsh
+LANG=C # split letters by 8bit char, should preserve encoding.
+escaped_query=
+for chr in ${(s::)1}; do
+    case $chr in
+        [-_.~[:alnum:]]) escaped_query+=$chr ;;
+        *) printf -v chr %%%02x "'$chr"; escaped_query+=$chr ;;
+    esac
+done
+printf '%s\n' $escaped_query

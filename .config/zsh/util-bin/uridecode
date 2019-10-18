@@ -1,0 +1,5 @@
+#!/bin/zsh
+# change plus to space
+uri="${1//+/ }"
+# convert % to hex literal and print
+printf '%b\n' "${uri//\%/\\x}"

@@ -1,0 +1,25 @@
+#!/bin/zsh
+case "$1" in ''|-h|--help)
+    print -u 2 -r -- \
+        'usage: encrypt_file target [destination]'
+    print -u 2 -r -- \
+        'if - is given for target, the contents of STDIN are encrypted.'
+    return 1
+esac
+
+[[ ! -f $1 && $1 != '-' ]] && {
+    print -u 2 -r -- "Error: no such file ($1)"
+    return 1
+}
+
+local file=$1
+local dest=$2
+if [[ -z $dest && $file == '-' ]]; then
+    dest='-'
+elif [[ -z $dest ]]; then
+    dest=${file}.gpg
+fi
+
+gpg2 --sign --encrypt --output $dest -- $file || {
+    print -u 2 -r -- 'Note: set default-recipient-self in ~/.gnupg/gpg.conf'
+}

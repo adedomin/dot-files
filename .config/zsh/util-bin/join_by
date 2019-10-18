@@ -1,0 +1,4 @@
+#!/bin/sh
+IFS="$1"
+shift
+printf '%s\n' "$*"

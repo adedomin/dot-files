@@ -1,0 +1,23 @@
+#!/bin/zsh
+# $1 - file
+# $2 - channels, comma separated (optional)
+# $3 - caption (optional)
+case "$1" in
+    -h|--help)
+        print -u 2 -r -- \
+            'usage: ghetty_up [-l|--list] picture.ext \#channel "caption"'
+        return 1
+    ;;
+    -l|--list)
+        curl -sSf 'https://images.ghetty.space/channels' \
+        | jq -r '.[] | .'
+        return
+    ;;
+esac
+
+curl -sSf 'https://images.ghetty.space/upload' \
+    --http1.1 \
+    -F "caption=${3}" \
+    -F "channel=${2}" \
+    -F "file=@${1};type=$(file --mime-type "$1" | grep -Po '(?<=: ).*')" \
+| jq -r '.href'
