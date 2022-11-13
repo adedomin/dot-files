@@ -1,0 +1,176 @@
+#!/usr/bin/expect --
+# Scriptable Serial/PTY Viewer
+
+proc parse_config {filename} {
+    # define config defaults
+    global pty_slave
+    global serial_dev
+    global baud_rate
+    global serial_parity
+    global serial_databits
+    global serial_stopbits
+    global keybind_macros
+
+    set pty_slave {}
+    set serial_dev /dev/ttyUSB0
+    set baud_rate 115200
+    set serial_parity n
+    set serial_databits 8
+    set serial_stopbits 1
+    set keybind_macros {}
+
+    # for config debug
+    set line_num 1
+    
+    if {[catch {open $filename r} fd]} {
+        set config_file [open $filename w]
+        puts $config_file "# Example Config"
+        puts $config_file "serial_port = /dev/ttyUSB0"
+        puts $config_file "baud_rate = 115200"
+        puts $config_file "# odd, even and none"
+        puts $config_file "parity = none"
+        puts $config_file "# must be between 5 and 8"
+        puts $config_file "databits = 8"
+        puts $config_file "# must be between 1 and 2"
+        puts $config_file "stopbits = 1"
+        puts $config_file "# bind Tcl code to a single letter in the brackets"
+        puts $config_file "# invoke with Ctrl-t h"
+        puts $config_file {bind[h] = { puts "Hello, World" }}
+        close $config_file
+        puts stderr "Error creating default config: Make sure to edit it: $filename"
+        exit 1
+    }
+
+    while {![eof $fd]} {
+        # read line
+        set line [string trim [gets $fd] " "]
+        
+        # ignore comments and empty lines
+        if {$line == ""} continue
+        if {[string match {[#]*} $line]} continue
+        
+        # split to kv pairs around =
+        set kv [split $line =]
+        set key [string trim [lindex $kv 0] " "]
+        set val [string trim [lindex $kv 1] " "]
+
+        set line_errno "($filename:$line_num - $line)"
+
+        switch -glob -- $key {
+            pty_slave {
+                set pty_slave $val
+            }
+            serial_port {
+                set serial_dev $val
+            }
+            baud_rate {
+                set baud_rate $val
+            }
+            parity {
+                switch -- $val {
+                    odd  { set serial_parity o }
+                    even { set serial_parity e }
+                    none { set serial_parity n }
+                    default {
+                        puts stderr \
+                            "Error parity not valid: ($val), must be even, odd or none $line_errno."
+                        exit 1
+                    }
+                }
+            }
+            databits {
+                if {$val > 8 && $val < 5} {
+                    puts stderr "Error databits invalid: 5 <= ($val) <= 8 $line_errno."
+                    exit 1
+                }
+                set serial_databits $val
+            }
+            stopbits {
+                if {$val > 2 && $val < 1} {
+                    puts stderr "Error stopbits invalid: 1 <= ($val) <= 2. $line_errno."
+                    exit 1
+                }
+                set serial_stopbits $val
+            }
+            {bind\[?\]} {
+                set keybind [string index $key 5]
+                if {$keybind == "q"} {
+                    puts stderr "Warning Ctrl-t q is used for quiting by default."
+                }
+                lappend keybind_macros \x14$keybind
+                set snippet $val
+                # Determins if snippet is a complete _list_ (note: edge case {x}{y})
+                # if not, keep parsing
+                while {![info complete $snippet]} {
+                    if {[eof $fd]} {
+                        puts stderr "Error keybind incomplete: $line_errno."
+                        exit 1
+                    }
+                    set snippet_t [gets $fd]
+                    set snippet $snippet\n$snippet_t
+                    incr line_num
+                }
+                lappend keybind_macros [lindex $snippet 0]
+            }
+            default {
+                puts stderr "Error invalid key: ($key) $line_errno."
+                exit 1
+            }
+        }
+        incr line_num
+    }
+    close $fd
+}
+
+if {[info exists ::env(XDG_CONFIG_HOME)]} {
+    set config_dir "$env(XDG_CONFIG_HOME)/termview"
+} else {
+    set config_dir "$env(HOME)/.config/termview"
+}
+# like mkdir -p
+file mkdir $config_dir
+
+set config_profile [lindex $argv 0]
+
+if {$config_profile == "-h" || $config_profile == "--help"} {
+    puts stderr {interm [-h|--help] [-l|--list] [profile-name]}
+    puts stderr "Profiles are stored at $config_dir/"
+    exit 1
+} elseif {$config_profile == "-l" || $config_profile == "--list"} {
+    set dircontent [glob -directory $config_dir *.conf]
+    foreach profile $dircontent {
+        puts [file rootname [file tail $profile]]
+    }
+    exit 0
+} elseif {$config_profile == ""} {
+    set config_profile DEFAULT
+}
+
+parse_config "$config_dir/$config_profile.conf"
+
+# if pty_slave is configured, we ignore these settings since we are connecting
+# the program to interact with our slave pty
+if {$pty_slave == ""} {
+    set term_channel [open $serial_dev r+]
+    chan configure $term_channel \
+        -mode "$baud_rate,$serial_parity,$serial_databits,$serial_stopbits" \
+        -buffering none \
+        -translation binary
+    spawn -noecho -open $term_channel
+} else {
+    spawn -noecho -pty
+    set pty_path $spawn_out(slave,name)
+    if {[catch {file link -symbolic $pty_slave $pty_path} err]} {
+        puts stderr "Error creating pty slave link: $err"
+        exit 1
+    } else {
+        puts "PTY Slave ($pty_path) created and linked to: $pty_slave"
+    }
+}
+
+puts "Ctrl-t q to quit."
+puts "Other bindings may be in effect, access them with Ctrl-t <your bind letter>."
+# \x14 = Ctrl-t - lowercase <letter> - 96 is the escape value for ctrl-<letter>
+interact \x14q {exit} {*}$keybind_macros
+
+# vim: sts=4 ts=4 sw=0 filetype=tcl

@@ -1,19 +1,536 @@
 #!/bin/zsh
+#zmodload zsh/zprof
 ### XDG - may be defined by gnome or other de
 # These vars must be defined before loading the other parts
 [[ -z "$XDG_CONFIG_HOME" ]] && export XDG_CONFIG_HOME="$HOME/.config"
 [[ -z "$XDG_CACHE_HOME"  ]] && export XDG_CACHE_HOME="$HOME/.cache"
 [[ -z "$XDG_DATA_HOME"   ]] && export XDG_DATA_HOME="$HOME/.local/share"
+[[ -z "$XDG_STATE_HOME"  ]] && export XDG_STATE_HOME="$HOME/.local/state"
 [[ -z "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR="$HOME/.local/run"
-[[ -z "$XDG_DATA_DIRS"   ]] && export XDG_DATA_DIRS="/usr/local/share:/usr/share"
+[[ -z "$XDG_DATA_DIRS"   ]] && export XDG_DATA_DIRS="$XDG_DATA_HOME:/usr/local/share:/usr/share"
 [[ -z "$XDG_CONFIG_DIRS" ]] && export XDG_CONFIG_DIRS="/etc/xdg"
 
 # ensure xdg paths exist
 [[ ! -d $XDG_CONFIG_HOME/zsh ]] && mkdir -p $XDG_CONFIG_HOME/zsh
 [[ ! -d $XDG_DATA_HOME/zsh   ]] && mkdir -p $XDG_DATA_HOME/zsh
 [[ ! -d $XDG_CACHE_HOME/zsh  ]] && mkdir -p $XDG_CACHE_HOME/zsh
+[[ ! -d $XDG_STATE_HOME/zsh  ]] && mkdir -p $XDG_STATE_HOME/zsh
 
-# source zshrc.d
-for file in $XDG_CONFIG_HOME/zsh/zshrc.d/*.zsh; do
-    source $file
-done
+### BEGIN BASIC ENV ###
+# Add .local/bin and other tool paths
+path=($XDG_CONFIG_HOME/zsh/util-bin ~/.local/bin $path)
+# let java know where fonts are
+export JAVA_FONTS=/usr/share/fonts/TTF
+
+# add custom terminfos
+# leading : means /usr/share/terminfo or system default terminfo
+# export TERMINFO_DIRS=$TERMINFO_DIRS:$XDG_DATA_HOME/terminfo
+# if terminal type is unknown, default to xterm-256color and pray
+if [[ -z "$terminfo" ]]; then
+    TERM=xterm-256color
+    # try just xterm then
+    if [[ -z "$terminfo" ]]; then
+        TERM=xterm
+    else
+        export COLORTERM=truecolor
+    fi
+# make sure colorterm is defined if useful
+elif [[ -z "$COLORTERM" ]]; then
+    case "$TERM" in
+        xterm*|alacritty*|foot) export COLORTERM=truecolor ;;
+    esac
+fi
+
+# some/dir => cd some/dir
+setopt autocd
+setopt extendedglob
+# bash style ksh extended globs
+setopt kshglob
+
+# stuff like $(( abs(-1) ))
+zmodload zsh/mathfunc
+### END BASIC ENV ###
+
+### BEGIN TERMINAL TITLE ###
+set-terminal-title() {
+    if [[ -z "$*" ]]; then
+        print -n -P -- '%{\033]0;%}%l%{\007%}'
+    else
+        print -n -r -- $'\033]0;'"$*"$'\007'
+    fi
+}
+
+case $TERM in
+    xterm*)         set-terminal-title ;;
+    gnome-terminal) set-terminal-title ;;
+    alacritty)      set-terminal-title ;;
+    foot)           set-terminal-title ;;
+esac
+### END TERMINAL TITLE ###
+
+### Plugin Updates
+_zplug_update_fn=()
+zplug_update() {
+    local update_fn
+    for update_fn in $_zplug_update_fn; do
+        $update_fn
+    done
+}
+
+### BEGIN completions ###
+() {
+    if [[ ! -d $XDG_DATA_HOME/zsh/plugins/zsh-completions ]]; then
+        print -- "INFO: installing extra zsh completions"
+        mkdir -p $XDG_DATA_HOME/zsh/completions $XDG_DATA_HOME/zsh/plugins
+        pushd $XDG_DATA_HOME/zsh/
+            git clone https://github.com/zsh-users/zsh-completions plugins/zsh-completions || return
+            ln -s -t $PWD/completions $PWD/plugins/zsh-completions/src/* || return
+        popd
+        print -- "INFO: installed extra zsh completions"
+    fi
+    _zplug_update_completion() {
+        print -- "INFO: Updating zsh completions"
+        pushd $XDG_DATA_HOME/zsh/plugins/zsh-completions
+        if ! git pull; then
+            print -u 2 -- 'WARNING: Failed to update zsh completions'
+            return 1
+        else
+            # make sure to fully regenerate the completions table
+            rm -f -- $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
+        fi
+        popd
+        print -- "INFO: Updated zsh completions"
+    }
+    _zplug_update_fn+=(_zplug_update_completion)
+} || print -u 2 -- 'WARNING: Failed to install extra zsh completions'
+
+fpath=($XDG_CONFIG_HOME/zsh/completions $XDG_DATA_HOME/zsh/plugins/zsh-completions/src $fpath)
+autoload -Uz compinit
+compinit -d $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
+### END completions ###
+
+### BEGIN history ###
+HISTSIZE=1000000
+HISTFILE=$XDG_DATA_HOME/zsh/zhistory
+SAVEHIST=$HISTSIZE
+setopt inc_append_history # write instantly on history
+setopt hist_ignore_all_dups # ignore duplicate commands
+# search via partial updown
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+
+# Kill all history file insanity
+zsh_history_dir=${XDG_STATE_HOME:-$HOME/.local/state}/history
+[[ ! -d $zsh_history_dir ]] && mkdir -p $zsh_history_dir
+export NODE_REPL_HISTORY=$zsh_history_dir/node_repl
+export LESSHISTFILE=$zsh_history_dir/less
+export SQLITE_HISTORY=$zsh_history_dir/sqlite3
+
+export WGETRC=$XDG_CONFIG_HOME/wget
+[ ! -f $WGETRC ] && print -r -- 'hsts-file = '$zsh_history_dir/wget > $WGETRC
+### END history ###
+
+### BEGIN prompt ###
+autoload -Uz colors
+colors
+
+color_lightness() {
+    integer r=$1
+    integer g=$2
+    integer b=$3
+    integer lightness=$(( (r*299) + (g*587) + (b*114) / 1000 ))
+    # Tweak this based on theme color
+    return $(( !(lightness > 125) ))
+}
+
+convert_to_rgb() {
+    integer x=$1
+    # truncate the top bits
+    x='x & 16#FFFFFF'
+    local r=$(( x >> 16 ))
+    local g=$(( (x >> 8) & 16#FF ))
+    local b=$(( x & 16#FF ))
+    REPLY="$r $g $b"
+}
+
+# $1 - get hash of string
+# sdbm hash algo
+color_hash2() {
+    local LANG=C #8bit char
+    integer chr=0 hash=0 i=1 len=$#1
+    # i=1 because zsh indexing
+    for (( i=1; i<=len; ++i )); do
+        printf -v chr '%d' \'"${1[$i]}"
+        # keep the number under 32bits
+        hash='(chr + (hash << 6) + (hash << 16) - hash)'
+    done
+    REPLY=$hash
+}
+
+# $1 - string to hash
+serv_color() {
+    local col_arr=("${(@k)fg}")
+    local filter=(white black default)
+    # will conflict with colorized terms
+    col_arr=("${(@)col_arr:|filter}")
+    color_hash2 $1
+    integer chash=$REPLY
+    REPLY="${fg[${col_arr[$(( chash % ${#col_arr[@]} + 1))]}]}"
+}
+
+base16_prompt_color() {
+    serv_color "$HOST_FULL"
+    PS1_COLOR=$REPLY
+}
+
+truecolor_prompt_color() {
+    color_hash2 "$HOST_FULL"
+    convert_to_rgb "$REPLY"
+    local rgb=(${(s: :)REPLY})
+    if color_lightness $rgb; then
+        print -v PS1_COLOR -f '\033[38;2;%d;%d;%dm' $rgb
+    else
+        base16_prompt_color
+    fi
+}
+
+print -v HOST_FULL -P '%M'
+print -v HOST_P -P '%m'
+#case $COLORTERM in
+#    truecolor|24bit) truecolor_prompt_color ;;
+#    *) base16_prompt_color ;;
+#esac
+base16_prompt_color
+
+# BOX: │ ├ ┐ └ ┘ ┌ ┼ ─ ┤ ╵ ╷ ╴ ╶
+USER_P="${PS1_COLOR}$USER$reset_color"
+red_exit="${fg[red]}"
+green_exit="${fg[green]}"
+COLOR_SIZE="${PS1_COLOR}$reset_color${red_exit}$reset_color"
+COLOR_SIZE=$#COLOR_SIZE
+BASE16_CSIZE="${red_exit}$reset_color"
+BASE16_CSIZE=$#BASE16_CSIZE
+
+#declare -A zshprompt_data
+
+zshprompt_escape_percent() {
+    REPLY=${*//\%/\%\%}
+    REPLY=${REPLY//\)/\%\)}
+}
+
+#zshprompt_last_exit() {
+#    local last_exit=$?
+#
+#    case $last_exit in
+#        0) zshprompt_data[last_exit]="${green_exit}${last_exit}$reset_color" ;;
+#        *) zshprompt_data[last_exit]="${red_exit}${last_exit}$reset_color" ;;
+#    esac
+#
+#    zshprompt_data[COLOR_SIZE]=$(( $COLOR_SIZE + BASE16_CSIZE ))
+#}
+
+# load vcs_info plugin
+autoload -Uz vcs_info &&
+    zstyle ':vcs_info:*' formats $'%s\0%r\0%b\0%R\0/%S' &&
+    zstyle ':vcs_info:*' actionformats $'%s\0%r\0%b\0%R\0/%S'
+
+zshprompt_git_info_pre() {
+    vcs_info
+    if [[ -n $vcs_info_msg_0_ ]]; then
+        local vcs_infos=(${(ps:\0:)vcs_info_msg_0_})
+        local vcs_type=${vcs_infos[1]}
+        local repo=${vcs_infos[2]}
+        local branch=${vcs_infos[3]}
+        local parent_dir="${vcs_infos[4]}/"
+        parent_dir="${parent_dir/#''$HOME/~}"
+        local lpath="${vcs_infos[5]#/}/"
+        local vcs_changes=
+
+        if [[ $vcs_type == 'git' ]]; then
+            # porcelain v1 output has different meanings during a merge
+            if [[ -f $parent_dir/.git/MERGE_HEAD ]]; then
+                vcs_changes+='MERGE'
+            elif [[ -f $parent_dir/.git/REVERT_HEAD ]]; then
+                vcs_changes+='REVERT'
+            else
+                [[ -d $parent_dir/.git/rebase-merge ||
+                    -d $parent_dir/.git/rebase-apply ]] &&
+                    vcs_changes+='REBASE:'
+
+                integer untracked=0
+                integer staged=0
+                integer unstaged=0
+                git status --porcelain=v1 | \
+                    while IFS= read -r st; do
+                        case ''${st:0:2} in
+                            '??') untracked+=1 ;;
+                            ?' ') staged+=1 ;;
+                            ' '?) unstaged+=1 ;;
+                            ??)   staged+=1; unstaged+=1 ;;
+                        esac
+                    done
+                    vcs_changes+="S:%F{green}$staged%f "
+                    vcs_changes+="U:%F{yellow}$unstaged%f "
+                    vcs_changes+="N:%F{red}$untracked%f"
+            fi
+        fi
+        local esc_branch="${branch//'%'/%%}"
+        local esc_branch="${esc_branch//')'/%)}"
+        zshprompt_git_info="[B:$esc_branch $vcs_changes] "
+        return 0
+    else
+        zshprompt_git_info=
+        return 1
+    fi
+}
+
+if [[ $TERM != dumb ]]; then
+precmd() {
+    zshprompt_git_info_pre
+    PROMPT="%{$PS1_COLOR%}%m%f (%(?.%F{green}0%f.%F{red}%?%f)%)%2(L. L%F{yellow}%L%f.) $zshprompt_git_info%~ %B%#%b "
+}
+PROMPT="%{$PS1_COLOR%}%m%f (%(?.%F{green}0%f.%F{yellow}%?%f)%) %~ %B%#%b "
+else
+    unsetopt zle && PS1='%# '
+fi
+
+### END prompt ###
+
+### BEGIN zsh-highlighting ###
+() {
+    local plugin=zsh-syntax-highlighting
+    if [[ ! -d $XDG_DATA_HOME/zsh/plugins/$plugin ]]; then
+        print -- "INFO: installing $plugin"
+        mkdir -p $XDG_DATA_HOME/zsh
+        pushd $XDG_DATA_HOME/zsh/
+            git clone https://github.com/zsh-users/$plugin plugins/$plugin || return
+        popd
+        print -- "INFO: installed $plugin"
+    fi
+    _zplug_update_syntax_highlighting() {
+        print -- "INFO: Updating zsh-syntax-highlighting"
+        pushd $XDG_DATA_HOME/zsh/plugins/zsh-syntax-highlighting
+        git pull || {
+            print -u 2 -- "WARNING: Failed to update zsh-syntax-highlighting"
+            return 1
+        }
+        popd
+        print -- "INFO: Updated zsh-syntax-highlighting"
+    }
+    _zplug_update_fn+=(_zplug_update_syntax_highlighting)
+    source $XDG_DATA_HOME/zsh/plugins/$plugin/$plugin.zsh || return
+} || print -u 2 -- 'WARNING: Failed to install or source zsh-syntax-highlighting'
+### END zsh-highlighting ###
+
+### BEGIN XDG ###
+# export TASKRC=$XDG_CONFIG_HOME/taskwarrior/task.conf
+# export WGETRC=$XDG_CONFIG_HOME/wget
+# export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+
+alias irssi='irssi --home=$XDG_CONFIG_HOME/irssi'
+alias stoken='stoken --rcfile=$XDG_CONFIG_HOME/stoken '
+
+export AWS_DEFAULT_PROFILE=prod
+export AWS_CONFIG_FILE=$XDG_CONFIG_HOME/aws/config
+export AWS_CLI_HISTORY_FILE=$XDG_CACHE_HOME/history/aws
+### END XDG ###
+
+### BEGIN alias ###
+alias sudo='sudo '
+alias exe='chmod +x'
+alias ls='ls --classify --all --color=auto --hyperlink=auto --group-directories-first'
+alias clbin="curl -F 'clbin=<-' https://clbin.com"
+alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
+
+# For stuff like git commit, etc.
+export EDITOR=nvim
+
+
+# workpass autocomplete and alias
+if hash pass 2>/dev/null; then
+    compdef _pass workpass
+    zstyle ':completion::complete:workpass::' prefix $HOME/Work-Sync/stow/pass/.password-store
+    workpass() {
+        PASSWORD_STORE_DIR=$HOME/Work-Sync/stow/pass/.password-store pass $@
+    }
+    # keep .password-store out of my homedir
+    export PASSWORD_STORE_DIR=$HOME/Sync/stow/pass/.password-store
+fi
+
+if hash apt 2>/dev/null; then
+    alias inst='sudo apt install '
+    alias remo='sudo apt remove '
+    alias updt='sudo apt update && sudo apt upgrade'
+    alias srch='apt search'
+elif hash dnf 2>/dev/null; then
+    alias inst='sudo dnf install '
+    alias remo='sudo dnf remove '
+    alias updt='sudo dnf update '
+    alias srch='dnf search -C'
+    alias what='dnf whatprovides '
+    alias debuginfo='sudo dnf --enablerepo=fedora-debuginfo --enablerepo=updates-debuginfo install '
+elif hash yum 2>/dev/null; then
+    alias inst='sudo yum install '
+    alias remo='sudo yum remove '
+    alias updt='sudo yum update '
+    alias srch='yum search '
+    alias what='yum whatprovides '
+elif hash pacman 2>/dev/null; then
+    alias inst='sudo pacman -S '
+    alias ainst='yaourt -S '
+    alias remo='sudo pacman -R '
+    alias aremo='yaourt -R '
+    alias updt='yaourt -Syu '
+    alias aupdt='yaourt -Syua '
+    alias srch='yaourt -Ss '
+fi
+### END alias ###
+
+### BEGIN other env ###
+# if connected over ssh, look for SSH_AUTH_SOCK in systemd env
+[[ -n "$SSH_CLIENT"      ]] && {
+    if SSH_AUTH_SOCK="$(
+        systemctl --user show-environment \
+        | sed -n '
+            b start
+            :quit
+            q 0
+            :start
+            s/SSH_AUTH_SOCK=//p
+            t quit
+            $ { q 1 }
+        '
+    )"; then
+        export SSH_AUTH_SOCK
+    else
+        unset SSH_AUTH_SOCK
+    fi
+}
+
+# BEGIN js #
+if hash npm 2>/dev/null; then
+    export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/config"
+    if [[ ! -f $XDG_CONFIG_HOME/npm/config ]]; then
+        mkdir -p $XDG_CONFIG_HOME/npm $XDG_DATA_HOME/npm
+        {
+            print -- "prefix=$XDG_DATA_HOME/npm"
+            print -- "cache=$XDG_CACHE_HOME/npm"
+        } > $NPM_CONFIG_USERCONFIG
+    fi
+    path=($XDG_DATA_HOME/npm/bin $path)
+fi
+if hash yarn 2>/dev/null; then
+    alias yarn='yarn --use-yarnrc $XDG_CONFIG_HOME/yarn/config '
+    # force some other XDG stuff
+    if [[ ! -f $XDG_CONFIG_HOME/yarn/config ]]; then
+        mkdir -p $XDG_CONFIG_HOME/yarn $XDG_DATA_HOME/yarn
+        {
+            print -- "prefix \"$HOME/.local\""
+            print -- "yarn-offline-mirror \"$XDG_DATA_HOME/yarn/local-mirror\""
+        } > $XDG_CONFIG_HOME/yarn/config
+    fi
+fi
+# END js #
+
+# BEGIN go #
+if hash go 2>/dev/null; then
+    export GOPATH=$XDG_STATE_HOME/go
+    path=($GOPATH/bin $path)
+fi
+# END go #
+
+# BEGIN rust #
+export CARGO_HOME=$XDG_STATE_HOME/cargo
+if [[ -d $CARGO_HOME ]]; then
+    path=($CARGO_HOME/bin $path)
+fi
+export RUSTUP_HOME=$XDG_STATE_HOME/rustup
+if hash rustup 2>/dev/null; then
+    default_toolchain="$(rustup show active-toolchain)"
+    path=(${"$(rustup which rustc)"%/*} $path)
+fi
+# END rust #
+
+# BEGIN Java #
+export CLASSPATH=$XDG_STATE_HOME/eclipse.jdt.ls/plugins/org.eclipse.equinox.launcher_1.5.700.v20200207-2156.jar:$CLASSPATH
+# END Java #
+
+# BEGIN OCaml #
+export OPAMROOT=$XDG_STATE_HOME/opam
+[[ -r $OPAMROOT/opam-init/init.zsh ]] && source $OPAMROOT/opam-init/init.zsh
+# END OCaml #
+
+# BEGIN Chicken Scheme
+if hash csi 2>/dev/null; then
+    export CHICKEN_INSTALL_REPOSITORY=$XDG_STATE_HOME/chicken
+    # export CHICKEN_REPOSITORY_PATH=$XDG_STATE_HOME/chicken:"$(csi -R chicken.platform)"
+fi
+# END Chicken Scheme
+
+# BEGIN guix #
+if [[ -z "$GUIX_PROFLE" && -e "$HOME/.guix-profile" ]]; then
+    GUIX_PROFILE="$HOME/.guix-profile"
+    [ -L $GUIX_PROFILE ] || return
+    GUIX_LOCPATH="$GUIX_PROFILE/lib/locale"
+    export GUIX_PROFILE GUIX_LOCPATH
+    [ -f "$GUIX_PROFILE/etc/profile" ] && . "$GUIX_PROFILE/etc/profile"
+    # set XDG_DATA_DIRS to include Guix installations
+    export XDG_DATA_DIRS="$GUIX_PROFILE/share:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
+fi
+# END guix#
+
+# BEGIN Nix #
+if [[ -z $NIX_PROFILES && -e $HOME/.nix-profile/etc/profile.d/nix.sh ]]; then
+    . $HOME/.nix-profile/etc/profile.d/nix.sh
+fi
+# nix does not appear to export this to the environment
+[[ -n $NIX_PROFILES && -z $LOCALE_ARCHIVE ]] && export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
+# END Nix #
+
+# BEGIN kube #
+export KUBECONFIG=$XDG_DATA_HOME/kube
+export MINIKUBE_HOME=$XDG_DATA_HOME/minikube
+# END kube #
+
+# BEGIN VSCodium
+if hash codium 2>/dev/null; then
+    export VSCODE_PORTABLE=$XDG_DATA_HOME/vscodium
+    # this forces the "config" in this directory as well.
+    if [[ ! -h $VSCODE_PORTABLE/user-data ]]; then
+        ln --symbolic --force --relative \
+            $XDG_CONFIG_HOME/VSCodium \
+            $VSCODE_PORTABLE/user-data
+    fi
+fi
+# END VSCodium
+
+### END other env ###
+
+### BEGIN ZSH Misc ###
+bindkey -e
+# adds delete key behavior
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+bindkey "\e[3~" delete-char
+
+containme () {
+    image=${1:-fedora-toolbox:latest}; (( $# > 1 )) && shift
+    comm=${2:-bash};                   (( $# > 1 )) && shift
+    podman run -it \
+        --rm \
+        --workdir=/work \
+        --volume=$PWD:/work \
+        $image $comm
+}
+
+# source customizations
+if [[ -n $XDG_CONFIG_HOME/zsh/custom/*(#qN) ]]; then
+    for f in $XDG_CONFIG_HOME/zsh/custom/*.zsh; do
+        source $f
+    done
+else
+    true # negates exit 1 if above conditional is false
+fi
+### END ZSH Misc ###

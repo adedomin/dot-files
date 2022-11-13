@@ -1,0 +1,5 @@
+#!/bin/sh
+# $1 - file
+curl 'https://images.ghetty.space/paste' \
+  --data-binary "@${1:--}" \
+| jq -r 'if .href != null then .href else .message end'

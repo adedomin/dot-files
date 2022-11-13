@@ -1,0 +1,46 @@
+#!/bin/sh
+SSH_DIR="$HOME/.ssh/"
+trap 'rm -f -- "${SSH_DIR?}/.clipboard.in" "${SSH_DIR?}/.clipboard.out"' EXIT
+
+action='copy'
+for arg; do
+    case $arg in
+        -i) ;;
+        -o) action="paste";;
+        *) host="$arg" ;;
+    esac
+done
+
+case $action in
+    copy)
+        if tty >/dev/null; then
+            printf '%s\n' 'type Ctrl-D when finished.'
+        fi
+        cat > "$SSH_DIR/.clipboard.in"
+        (
+            cd "$HOME" || exit
+            if ! err="$(sftp "$host" >/dev/null 2>&1 << 'EOF'
+put .ssh/.clipboard.in .ssh/clipboard
+EOF
+)"
+            then
+                printf >&2 '%s\n' "$err"
+                exit 1
+            fi
+        ) || exit
+    ;;
+    paste)
+        (
+            cd "$HOME" || exit
+            if ! err="$(sftp "$host" 2>&1 << 'EOF'
+get .ssh/clipboard .ssh/.clipboard.out
+EOF
+)"
+            then
+                printf >&2 '%s\n' "$err"
+                exit 1
+            fi
+        ) || exit
+        cat "$SSH_DIR/.clipboard.out"
+    ;;
+esac

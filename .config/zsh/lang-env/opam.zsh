@@ -1,1 +1,0 @@
-/home/prussian/.opam/opam-init/init.zsh

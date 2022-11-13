@@ -1,0 +1,31 @@
+#!/bin/bash
+
+usage() {
+    printf >&2 "%s\n" \
+        'usage: favicon-to-app location=https://website.com/favicon.ico xdg=PATH_IN_XDG_DATA_DIRS name=app-name'
+    exit 1
+}
+
+for arg; do
+    case "$arg" in
+        location=*) location="${arg#*=}" ;;
+        xdg=*) xdg="${arg#*=}" ;;
+        name=*) name="${arg#*=}" ;;
+    esac
+done
+[ -z "$location" ] && usage
+[ -z "$xdg" ] && usage
+[ -z "$name" ] && usage
+
+trap 'rm -rf -- "${tmpdir:?}"' exit
+tmpdir="$(mktemp -d)" || exit
+pushd "$tmpdir" || exit
+# get favicon
+wget "$location" -O favicon.ico || exit
+for size in 16 32 64 96 128 256; do
+    s="${size}x${size}"
+    convert -resize "${s}" favicon.ico -background transparent -flatten "$name.png"
+    ls -l
+    install -v -D -t "$xdg/icons/hicolor/$s/apps" "$name.png"
+done
+popd || exit

@@ -1,0 +1,14 @@
+[alias]
+	st = status
+	log-files = log --name-status
+	wip = for-each-ref --sort='authordate:iso8601' --format=' %(color:green)%(authordate:relative)%09%(color:white)%(refname:short)' refs/heads
+	merge-bisect = merge --no-commit --no-ff
+[user]
+	name = Anthony DeDominic
+	email = adedomin@gmail.com
+[pull]
+	rebase = true
+[checkout]
+	defaultRemote = origin
+[init]
+	defaultbranch = master

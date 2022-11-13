@@ -1,0 +1,25 @@
+#!/usr/bin/env zsh
+DEFAULT='[:graph:]'
+ALNUM='[:lower:][:digit:]'
+
+case "$1" in
+    *help*)
+        print -r -l -u 2 'usage: pass-gen [length] [alpha-numeric|all]'
+        exit 1
+    ;;
+    *[!0-9]*) 
+        print -r -l -u 2 'Invalid Number: '$1
+        exit 1
+    ;;
+esac
+
+case "$2" in
+    alnum) charset="$ALNUM" ;;
+    alpha-numeric) charset="$ALNUM" ;;
+    *) charset="$DEFAULT" ;;
+esac
+
+LC_ALL=c \
+    tr -dc "$charset" < /dev/urandom \
+    | head --bytes="${1:-16}"
+print

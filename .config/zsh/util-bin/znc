@@ -1,2 +1,2 @@
 #!/bin/sh
-exec irssi -c "znc-$1"
+exec irssi --home="$XDG_CONFIG_HOME/irssi" -c "znc-$1"

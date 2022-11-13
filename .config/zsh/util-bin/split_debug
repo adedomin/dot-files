@@ -1,0 +1,16 @@
+#!/bin/bash
+die() {
+    printf >&2 "%s\n" "$*"
+    exit 1
+}
+
+[[ ! -f "$1" ]] && die "usage: $0 linked_elf_file"
+
+printf -v elf_head '\x7fELF'
+is_elf="$(dd status=none if="$1" bs=1 count=4)" || exit
+[[ "$elf_head" != "$is_elf" ]] && die "Error: $1 is not a ELF."
+
+debug_out="${2:-$1.debug}"
+objcopy --only-keep-debug --compress-debug-sections "$1" "$debug_out" || exit
+objcopy --strip-debug "$1" || exit
+objcopy --add-gnu-debuglink="${debug_out##*/}" "$1"

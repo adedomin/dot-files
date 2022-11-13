@@ -1,0 +1,18 @@
+#compdef _termview termview
+
+_termview() {
+    profiles=()
+    for profile in $XDG_CONFIG_HOME/termview/*; do
+        profile="${profile##*/}"
+        profile="${profile%.conf}"
+        profiles+=("$profile")
+    done
+    _arguments -C \
+        "-h[Show help]" \
+        "--help[Show help]" \
+        "-l[Show profiles]" \
+        "--list[Show profiles]" \
+        "1: :($profiles)"
+}
+
+# vim: sts=4 ts=4 sw=0 filetype=zsh

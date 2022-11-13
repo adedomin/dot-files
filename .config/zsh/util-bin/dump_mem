@@ -1,0 +1,52 @@
+#!/usr/bin/env --split-string=gawk -Wexec
+function shell_quote(s) {
+    gsub(/\047/, "\047\\\047\047", s)
+    return "\047" s "\047"
+}
+
+BEGIN {
+    ecode = 0
+    if (ARGC != 2 || ARGV[1] == "-h" || ARGV[1] == "--help") {
+        ecode = 1
+        exit
+    }
+
+    pid = ARGV[1]
+
+    t = "mktemp -d"
+    p = "getconf PAGESIZE"
+    t | getline tmploc
+    p | getline pagesize
+    close(t)
+    close(p)
+
+    ARGV[1] = "/proc/" ARGV[1] "/maps"
+}
+
+{
+    split($1, start_end, "-")
+    start = strtonum("0x" start_end[1])
+    end   = strtonum("0x" start_end[2])
+    name  = $6
+    if (name == "") name = "[anon]"
+    else gsub("/", "__", name)
+    system( \
+       "dd " \
+       "if=/proc/" pid "/mem " \
+       "bs=" pagesize " " \
+       "iflag=skip_bytes,count_bytes " \
+       "skip=" start " " \
+       "count=" end - start " " \
+       shell_quote("of=" tmploc "/" $1 "-" name "-" pid ".bin") \
+    )
+}
+
+END {
+    if (ecode == 1) {
+        print("usage: dump_mem pid")
+        print("Dumps the memory map of a given pid to a temporary path.")
+        exit 1
+    } else {
+        print("Saved memory dump at " tmploc)
+    }
+}

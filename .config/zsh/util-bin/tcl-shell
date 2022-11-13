@@ -1,0 +1,37 @@
+#!/bin/sh
+# the next line restarts using tclsh \
+exec tclsh "$0" ${1+"$@"}
+
+package require tclreadline
+package require Expect
+
+interp alias {} stty {} exp_stty
+exp_trap SIG_IGN SIGINT
+
+proc ::tclreadline::prompt1 {} {
+    global _tcl_shell_username
+    global _tcl_shell_hostname
+
+    set ecode 0
+    if {$::tclreadline::errorMsg != ""} {
+        set ecode 1
+    }
+    set cur_dir [regsub ^$::env(HOME) [pwd] ~]
+    return "$_tcl_shell_username@$_tcl_shell_hostname $cur_dir ($ecode) \$ "
+}
+
+set _tcl_shell_hostname [lindex [split [info hostname] "."] 0]
+set _tcl_shell_username [exec whoami]
+
+# set ::tcl_interactive 1
+set ::tclreadline::historyLength 10000
+
+set _tcl_shell_cache_dir $::env(XDG_CACHE_HOME)
+if {$_tcl_shell_cache_dir == ""} {
+    set _tcl_shell_cache_dir $::env(HOME)/.cache
+}
+
+file mkdir $_tcl_shell_cache_dir/history
+::tclreadline::Loop $_tcl_shell_cache_dir/history/tclsh
+
+# vim: filetype=tcl

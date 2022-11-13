@@ -1,0 +1,19 @@
+#!/bin/zsh
+### XDG - may be defined by gnome or other de
+# These vars must be defined before loading the other parts
+[[ -z "$XDG_CONFIG_HOME" ]] && export XDG_CONFIG_HOME="$HOME/.config"
+[[ -z "$XDG_CACHE_HOME"  ]] && export XDG_CACHE_HOME="$HOME/.cache"
+[[ -z "$XDG_DATA_HOME"   ]] && export XDG_DATA_HOME="$HOME/.local/share"
+[[ -z "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR="$HOME/.local/run"
+[[ -z "$XDG_DATA_DIRS"   ]] && export XDG_DATA_DIRS="/usr/local/share:/usr/share"
+[[ -z "$XDG_CONFIG_DIRS" ]] && export XDG_CONFIG_DIRS="/etc/xdg"
+
+# ensure xdg paths exist
+[[ ! -d $XDG_CONFIG_HOME/zsh ]] && mkdir -p $XDG_CONFIG_HOME/zsh
+[[ ! -d $XDG_DATA_HOME/zsh   ]] && mkdir -p $XDG_DATA_HOME/zsh
+[[ ! -d $XDG_CACHE_HOME/zsh  ]] && mkdir -p $XDG_CACHE_HOME/zsh
+
+# source zshrc.d
+for file in $XDG_CONFIG_HOME/zsh/zshrc.d/*.zsh; do
+    source $file
+done
