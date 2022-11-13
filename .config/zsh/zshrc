@@ -68,42 +68,7 @@ case $TERM in
 esac
 ### END TERMINAL TITLE ###
 
-### Plugin Updates
-_zplug_update_fn=()
-zplug_update() {
-    local update_fn
-    for update_fn in $_zplug_update_fn; do
-        $update_fn
-    done
-}
-
 ### BEGIN completions ###
-() {
-    if [[ ! -d $XDG_DATA_HOME/zsh/plugins/zsh-completions ]]; then
-        print -- "INFO: installing extra zsh completions"
-        mkdir -p $XDG_DATA_HOME/zsh/completions $XDG_DATA_HOME/zsh/plugins
-        pushd $XDG_DATA_HOME/zsh/
-            git clone https://github.com/zsh-users/zsh-completions plugins/zsh-completions || return
-            ln -s -t $PWD/completions $PWD/plugins/zsh-completions/src/* || return
-        popd
-        print -- "INFO: installed extra zsh completions"
-    fi
-    _zplug_update_completion() {
-        print -- "INFO: Updating zsh completions"
-        pushd $XDG_DATA_HOME/zsh/plugins/zsh-completions
-        if ! git pull; then
-            print -u 2 -- 'WARNING: Failed to update zsh completions'
-            return 1
-        else
-            # make sure to fully regenerate the completions table
-            rm -f -- $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
-        fi
-        popd
-        print -- "INFO: Updated zsh completions"
-    }
-    _zplug_update_fn+=(_zplug_update_completion)
-} || print -u 2 -- 'WARNING: Failed to install extra zsh completions'
-
 fpath=($XDG_CONFIG_HOME/zsh/completions $XDG_DATA_HOME/zsh/plugins/zsh-completions/src $fpath)
 autoload -Uz compinit
 compinit -d $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION
@@ -129,7 +94,7 @@ export LESSHISTFILE=$zsh_history_dir/less
 export SQLITE_HISTORY=$zsh_history_dir/sqlite3
 
 export WGETRC=$XDG_CONFIG_HOME/wget
-[ ! -f $WGETRC ] && print -r -- 'hsts-file = '$zsh_history_dir/wget > $WGETRC
+[[ ! -f $WGETRC ]] && print -r -- 'hsts-file = '$zsh_history_dir/wget > $WGETRC
 ### END history ###
 
 ### BEGIN prompt ###
@@ -299,29 +264,8 @@ fi
 ### END prompt ###
 
 ### BEGIN zsh-highlighting ###
-() {
-    local plugin=zsh-syntax-highlighting
-    if [[ ! -d $XDG_DATA_HOME/zsh/plugins/$plugin ]]; then
-        print -- "INFO: installing $plugin"
-        mkdir -p $XDG_DATA_HOME/zsh
-        pushd $XDG_DATA_HOME/zsh/
-            git clone https://github.com/zsh-users/$plugin plugins/$plugin || return
-        popd
-        print -- "INFO: installed $plugin"
-    fi
-    _zplug_update_syntax_highlighting() {
-        print -- "INFO: Updating zsh-syntax-highlighting"
-        pushd $XDG_DATA_HOME/zsh/plugins/zsh-syntax-highlighting
-        git pull || {
-            print -u 2 -- "WARNING: Failed to update zsh-syntax-highlighting"
-            return 1
-        }
-        popd
-        print -- "INFO: Updated zsh-syntax-highlighting"
-    }
-    _zplug_update_fn+=(_zplug_update_syntax_highlighting)
-    source $XDG_DATA_HOME/zsh/plugins/$plugin/$plugin.zsh || return
-} || print -u 2 -- 'WARNING: Failed to install or source zsh-syntax-highlighting'
+source $XDG_DATA_HOME/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ||
+    print -u 2 -- 'WARNING: Failed to source zsh-syntax-highlighting'
 ### END zsh-highlighting ###
 
 ### BEGIN XDG ###

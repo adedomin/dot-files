@@ -25,6 +25,8 @@ $(symlink_targets):
 
 install: $(obj_home) \
 	     $(symlink_targets)
+	     rm -f -- "$(XDG_CACHE_HOME)/zsh/zcompdump-"*
+
 
 run-update:
 	git pull
