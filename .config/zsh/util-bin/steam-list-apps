@@ -1,9 +1,17 @@
-#!/bin/zsh
+#!/bin/bash
 find "$HOME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps" \
   -maxdepth 1 \
   -type f \
   -name '*.acf' \
   -exec awk -F '"' '/"appid|name/ { print $4 }' {} + \
 | paste - - \
-| column --table --separator=$'\t' \
-| sort --key=2
+| if [[ -n "$*" ]]
+then
+    grep -iF "$*" \
+    | head -1 \
+    | cut -d$'\t' -f 1 \
+    | xargs -r -I{} xdg-open steam://rungameid/{} &>/dev/null
+else 
+    column --table --separator=$'\t' \
+    | sort --key=2
+fi

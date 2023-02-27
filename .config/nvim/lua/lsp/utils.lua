@@ -28,7 +28,7 @@ function M.lsp_diagnostics()
 end
 
 function M.lsp_highlight(client, bufnr)
-  if client.resolved_capabilities.document_highlight then
+  if client.server_capabilities['documentHighlightProvider'] then
     vim.api.nvim_exec(
       [[
         hi LspReferenceRead  cterm=bold gui=bold
@@ -43,10 +43,6 @@ function M.lsp_highlight(client, bufnr)
         ]],
       false
     )
-  end
-
-  if vim.bo.filetype == 'rust' then
-      -- require 'rust-tools' .setup {}
   end
 end
 
@@ -69,8 +65,8 @@ function M.lsp_config(client, bufnr)
   -- local whichkey = require "config.which-key"
   -- whichkey.register_lsp(client)
 
-  if client.resolved_capabilities.document_formatting then
-    vim.cmd "autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()"
+  if client.server_capabilities['documentFormattingProvider'] then
+    vim.cmd "autocmd BufWritePre <buffer> lua vim.lsp.buf.format()"
   end
 end
 
@@ -86,6 +82,7 @@ function M.lsp_attach(client, bufnr)
   M.lsp_config(client, bufnr)
   M.lsp_highlight(client, bufnr)
   M.lsp_diagnostics()
+  require('lsp-inlayhints').on_attach(client, bufnr)
 end
 
 function M.setup_server(server, config)

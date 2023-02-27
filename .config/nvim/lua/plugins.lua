@@ -135,6 +135,7 @@ exe '!printf ' . shellescape('%s\n', 1) . ' ' .
             requires = {
                 'ray-x/lsp_signature.nvim',
                 'simrat39/rust-tools.nvim',
+                'lvimuser/lsp-inlayhints.nvim',
             },
             config = function()
                 local init_fn = require('lsp.init')
@@ -181,10 +182,27 @@ noremap <Leader>v :VBox<Return>
                 ]]
             end,
         }
-
+        use {
+            'lvimuser/lsp-inlayhints.nvim',
+            config = function()
+                require("lsp-inlayhints").setup()
+            end,
+        }
         if vim.fn.has('nvim-0.6.0') then
             use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
         end
+
+        use {
+            'koka-lang/koka',
+            rtp = 'support/vim',
+            config = function()
+                nvim_create_augroups {
+                    koka_ftdetect = {
+                        { "BufNewfile,BufEnter", "*.kk", "setf koka" },
+                    },
+                }
+            end,
+        }
     end)
 end
 
