@@ -1,29 +1,48 @@
-;;; init.el --- Config for Emacs
+;;; init.el --- Config for Emacs -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; CODE:
 ;; Fast Startup
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
 
+(defvar native-comp-deferred-compilation-deny-list '()
+  "Hack to fix straight.el for now.")
+
+(defvar native-comp-async-report-warnings-errors nil
+  "I don't need some god awful window split to tell me how broke my software is.")
+
+
+(defun init--getenv-or (env default)
+  "Get the environment variable ENV or return a sensible DEFAULT."
+  (let ((envres (getenv env)))
+    (if envres
+        envres
+      default)))
+
 ;; make emacs more XDG by using DATA_HOME for packages
 (defvar-local init--my-data-home
-  (if (getenv "XDG_DATA_HOME")
-      (concat (getenv "XDG_DATA_HOME") "/emacs/")
-    "~/.local/share/emacs/")
+    (format "%s/emacs/"
+            (init--getenv-or "XDG_DATA_HOME" "~/.local/share"))
   "Proper XDG Data Home path.")
+
+;; XDG state home
+(defvar-local init--my-state-home
+    (format "%s/emacs/"
+            (init--getenv-or "XDG_STATE_HOME"
+                             (init--getenv-or "XDG_DATA_HOME" "~/.local/state")))
+  "Proper XDG state path for system specific binaries.")
 
 ;; XDG cache home
 (defvar-local init--my-cache-home
-  (if (getenv "XDG_CACHE_HOME")
-      (concat (getenv "XDG_CACHE_HOME") "/emacs/")
-    "~/.cache/emacs")
-  "XDG cache path for temporaries")
+    (format "%s/emacs/"
+            (init--getenv-or "XDG_CACHE_HOME" "~/.cache"))
+  "Proper XDG cache path for temporaries.")
 
 ;; redefine user-emacs-directory so junk goes into XDG_DATA_HOME
 (setq user-emacs-directory init--my-data-home)
-(setq comp-eln-load-path ',(bound-and-true-p comp-eln-load-path))
-(add-to-list 'comp-eln-load-path (concat init--my-data-home
-                                         "/eln-cache/"))
+;; (setq native-comp-eln-load-path ',(bound-and-true-p native-comp-eln-load-path))
+;; (add-to-list 'native-comp-eln-load-path (concat init--my-data-home
+;;                                         "eln-cache/"))
 
 ;; nil causes a file to be moved for backup and a new file
 ;; saves after first backup, however, are done in-place.
@@ -64,7 +83,7 @@
 ;; some source files *need* tabs
 (setq-default tab-width 4)
 (setq-default c-default-style "bsd"
-              c-basic-offset 4)
+              c-basic-ofifset 4)
 ;; END - emacs built-in modes and other emacs configs
 
 ;; START package manager stuff
@@ -130,7 +149,9 @@
 (use-package xref
   :after (evil)
   :bind (:map evil-normal-state-map
-              ("<leader>," . #'xref-pop-marker-stack)
+              ;; ("<leader>," . #'xref-pop-marker-stack)
+              ("<leader>m" . #'xref-go-back)
+              ("<leader>," . #'xref-go-forward)
               ("<leader>." . #'xref-find-definitions)
               ("<leader>/" . #'xref-find-references))
   :config
@@ -282,6 +303,7 @@
   :hook (js-mode . tree-sitter-mode))
 
 (use-package tree-sitter-langs
+  :disabled
   :straight (tree-sitter-langs)
   :after tree-sitter)
 
@@ -291,8 +313,47 @@
                        :repo "ethan-leba/tree-edit")
   :hook (tree-sitter-after-on . evil-tree-edit))
 
+(use-package yasnippet
+  :straight (yasnippet :host github
+                       :repo "joaotavora/yasnippet"))
+
+(defun init--bash-lsp-setup ()
+  "Setup bash-lsp to use shellcheck."
+  (eglot-ensure)
+  (add-hook 'lsp-after-initialize-hook
+            (flycheck-add-next-checker
+             'lsp
+             '(warning . 'sh-shellcheck)
+             'append)))
+
+(defvar init--eglot-keymap (make-sparse-keymap)
+  "Define an empty eglot keymap.")
+
+(use-package eglot
+  ;; :after evil
+  :hook (python-mode . eglot-ensure)
+  :hook (go-mode . eglot-ensure)
+  :hook (c-mode . eglot-ensure)
+  :hook (c++-mode . eglot-ensure)
+  :hook (rust-mode . eglot-ensure)
+  ;;:hook (sh-mode . init--bash-lsp-setup)
+  ;; :hook (eglot-ensure-mode . lsp-enable-which-key-integration)
+  :hook (js-mode . eglot-ensure)
+  :hook (zig-mode . eglot-ensure)
+  :hook (haskell-mode . eglot-ensure)
+  :hook (tuareg-mode . eglot-ensure)
+  :hook (racket-mode . eglot-ensure)
+  :commands eglot-ensure
+  :bind (:map init--eglot-keymap
+              ("h" . #'eldoc)
+              ("c" . #'eglot-code-actions)
+              ("fb" . #'eglot-format-buffer)
+              ("fr" . #'eglot-format))
+  :bind-keymap ("<leader>e" . init--eglot-keymap))
+
 ;; Activated by lsp-mode
 (use-package lsp-ui
+  :disabled
   :after evil ;; evil-define-key
   :straight (lsp-ui :host github
                     :repo "emacs-lsp/lsp-ui")
@@ -304,16 +365,8 @@
   (evil-define-key 'normal lsp-mode-map
     (kbd "<leader>SPC") #'lsp-ui-doc-glance))
 
-(defun init--bash-lsp-setup ()
-  "Setup bash-lsp to use shellcheck."
-  (lsp)
-  (add-hook 'lsp-after-initialize-hook
-            (flycheck-add-next-checker
-             'lsp
-             '(warning . 'sh-shellcheck)
-             'append)))
-
 (use-package lsp-mode
+  :disabled
   :straight (lsp-mode :flavor melpa
                       :host github
                       :repo "emacs-lsp/lsp-mode")
@@ -339,6 +392,7 @@
   (lsp-clients-clangd-args '("--header-insertion=never"))
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-eldoc-render-all nil)
   :bind (:map evil-normal-state-map
               ("<leader>h" . #'lsp-describe-thing-at-point)
               ("<leader>cof" . #'lsp-clangd-find-other-file))
@@ -370,8 +424,15 @@
   :straight (cmake-project)
   :commands cmake-project-mode)
 
+(use-package flymake
+  :hook (emacs-lisp-mode . flymake-mode)
+  :bind (:map evil-normal-state-map
+              ("[d" . #'flymake-goto-prev-error)
+              ("]d" . #'flymake-goto-next-error)))
+
 ;; Slightly better automagic linting runner
 (use-package flycheck
+  :disabled
   :straight (flycheck :host github
                       :repo "flycheck/flycheck")
   :hook (sh-mode . flycheck-mode)
@@ -417,6 +478,8 @@
   :straight (rust-mode)
   :custom
   (rust-format-on-save t)
+  (rust-format-goto-problem nil)
+  (rust-format-show-buffer nil)
   :mode "\\.rs\\'")
 
 (use-package zig-mode
@@ -456,6 +519,27 @@
                           :repo "greghendershott/racket-mode")
   :mode ("\\.rktd?\\'" . racket-mode))
 
+(use-package poke-mode
+  :straight (poke-mode)
+  :mode ("\\.pk\\'" . poke-mode))
+
+(use-package poke
+  :straight (poke)
+  :config
+  (setq poked-socket (concat
+                      (init--getenv-or "XDG_RUNTIME_DIR" (concat "HOME" "~/.local/tmp"))
+                      "/poked.ipc"))
+  (defun poke-poked ()
+    "Start the poke daemon.  The new process is associated with the
+buffer `*poked*'."
+    (interactive)
+    (when (not (process-live-p poke-poked-process))
+      (setq poke-poked-process
+            (make-process :name "poked"
+                          :buffer "*poked*"
+                          :command (list poke-poked-program "--socket" poked-socket "--debug")))
+      (set-process-query-on-exit-flag poke-poked-process nil))))
+
 (use-package clojure-mode
   :disabled
   :straight (clojure-mode)
@@ -478,6 +562,11 @@
   (forward-line 1)
   (transpose-lines 1)
   (forward-line -1))
+
+(use-package eldoc-box
+  :disabled
+  :straight (eldoc-box)
+  :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 ;; Vi in Emacs
 (use-package evil

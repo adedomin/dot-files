@@ -1,0 +1,22 @@
+theme = "solarized_light"
+
+[editor]
+line-number = "relative"
+mouse = true
+middle-click-paste = true
+cursorline = true
+cursorcolumn = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[keys.normal]
+j = "move_char_left"
+k = "move_line_down"
+l = "move_line_up"
+";" = "move_char_right"
+
+[keys.select]
+h = "collapse_selection"
