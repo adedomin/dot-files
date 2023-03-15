@@ -1,32 +1,52 @@
 local M = {}
 
-vim.g.global_runtime_path = vim.env.XDG_DATA_HOME .. '/nvim/site'
+vim.g.global_runtime_path = vim.env.XDG_DATA_HOME .. '/nvim/site/'
 
 function M.setup()
-    packer = require 'packer'
-    packer.startup(function(use)
-        use 'norcalli/nvim_utils'
-        use 'drmingdrmer/vim-tabbar'
-        use {
+    require('lazy').setup({
+        'norcalli/nvim_utils', -- remove this.
+        'drmingdrmer/vim-tabbar',
+        {
+            'nvim-telescope/telescope.nvim',
+            cmd = {'Telescope'},
+            init = function()
+              require('which-key').register({
+                f = { '<cmd>Telescope find_files<cr>', 'Find file' },
+                g = { '<cmd>Telescope live_grep<cr>', 'Grep live' },
+                b = { '<cmd>Telescope buffers<cr>', 'Find buffer' },
+                h = { '<cmd>Telescope help_tags<cr>', 'help_tags' },
+              }, { prefix = '<leader>t' })
+            end,
+            dependencies = { 'nvim-lua/plenary.nvim' },
+        },
+        {
             'preservim/nerdtree',
-            setup = function()
+            init = function()
                 vim.g.NERDTreeShowHidden = 1
                 vim.g.NERDTreeBookmarksFile = vim.g.global_runtime_path .. '/../NERDTreeBookmarks'
+                vim.cmd [[
+                  augroup NERDTree_group
+                    autocmd!
+                    autocmd StdinReadPre * let s:std_in=1
+                    autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | exe "NERDTree" | endif
+                    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+                  augroup END
+                ]]
             end,
+            cmd = {"NERDTree", "NERDTreeToggle"},
+        },
+        {
+            'folke/which-key.nvim',
             config = function()
-                require 'nvim_utils'
-                nvim_create_augroups {
-                    NERDTree_start = {
-                        { "StdinReadPre", "*", "let g:nerdtree_aucmd_std_in=1" },
-                        { "VimEnter",     "*", "if argc() == 0 && !exists('g:nerdtree_aucmd_std_in') | NERDTree | endif" },
-                    },
-                }
-            end,
-            requires = 'norcalli/nvim_utils',
-        }
-        use {
+                vim.o.timeout = true
+                vim.o.timeoutlen = 350
+                require('which-key').setup {}
+            end
+        },
+        {
             'dense-analysis/ale',
-            config = function()
+            lazy = false,
+            init = function()
                 vim.g.ale_lint_on_text_changed = "never"
                 vim.g.ale_lint_on_enter = 0
                 vim.g.ale_linters = {
@@ -43,65 +63,55 @@ function M.setup()
                 }
                 vim.g.ale_disable_lsp = 1
             end,
-        }
-        use {
+        },
+        {
             'ishan9299/nvim-solarized-lua',
+            lazy = false,
             config = function()
-                require 'nvim_utils'
-                nvim_create_augroups {
-                    solarized_colorscheme = {
-                        { "ColorScheme", "solarized", "highlight Whitespace gui=bold guibg=#eee8d5" },
-                        { "ColorScheme", "solarized", "highlight Conceal gui=bold guibg=#eee8d5" },
-                        { "BufWinEnter,BufReadPre", "*", "setlocal conceallevel=2 concealcursor=nv" },
-                        { "BufWinEnter,BufReadPre", "*", "syntax match LeadingSpace /\\(^ *\\)\\@<= / containedin=ALL conceal cchar= " },
-                    },
-                }
-                vim.cmd [[ colorscheme solarized ]]
+                vim.cmd [[
+                  augroup Solarized_colorscheme
+                    autocmd!
+                    autocmd ColorScheme * highlight Whitespace gui=bold guibg=#eee8d5
+                    autocmd ColorScheme * highlight Conceal gui=bold guibg=#eee8d5
+                    autocmd BufWinEnter,BufReadPre * setlocal conceallevel=2 concealcursor=nv
+                    autocmd BufWinEnter,BufReadPre * syntax match LeadingSpace /\(^ *\)\@<= / containedin=ALL conceal cchar= 
+                  augroup END
+                  colorscheme solarized
+                ]]
             end,
-            requires = 'norcalli/nvim_utils',
-        }
-        use {
-            'lifepillar/vim-solarized8',
-            disable = true,
-            config = function()
-                require 'nvim_utils'
-                nvim_create_augroups {
-                    solarized8_colorscheme = {
-                        { "ColorScheme", "solarized8", "highlight Whitespace gui=bold guibg=#eee8d5" },
-                        { "ColorScheme", "solarized8", "highlight Conceal gui=bold guibg=#eee8d5" },
-                        { "BufWinEnter,BufReadPre", "*", "setlocal conceallevel=2 concealcursor=nv" },
-                        { "BufWinEnter,BufReadPre", "*", "syntax match LeadingSpace /\\(^ *\\)\\@<= / containedin=ALL conceal cchar= " },
-                    },
-                }
-                vim.cmd 'colorscheme solarized8'
-            end,
-            requires = 'norcalli/nvim_utils',
-        }
-        use {
+        },
+        {
             'antoyo/vim-licenses',
             cmd = {'Gpl','Apache','Mit','Isc','PrattAndWhitney'},
-            setup = function()
+            init = function()
                 vim.g.licenses_copyright_holders_name = "Anthony DeDominic <adedomin@gmail.com>"
                 vim.g.licenses_default_commands = { "gpl", "apache", "mit", "isc" }
 
                 vim.g.licenses_corporate_copyright_name = "Anthony DeDominic <Anthony.DeDominic@prattwhitney.com>"
                 local corp = 'PrattAndWhitney'
-                vim.g.corp_license_file = vim.g.global_runtime_path .. '/pack/packer/opt/vim-licenses/licenses/' ..  corp .. '.txt'
+                vim.g.corp_license_file = vim.g.global_runtime_path .. '/../lazy/vim-licenses/licenses/' ..  corp .. '.txt'
 
-                if vim.fn.filereadable(vim.g.corp_license_file) == 0 then
-                     vim.cmd [[
-exe '!printf ' . shellescape('%s\n', 1) . ' ' .
-    \ shellescape('Copyright (c) <year> Pratt & Whitney') . ' ' .
-    \ shellescape('') . ' ' .
-    \ shellescape('All rights reserved') . ' ' .
-    \ shellescape('This document contains confidential and proprietary information of') . ' ' .
-    \ shellescape('Pratt & Whitney, any reproduction, disclosure, or use in whole or in part is') . ' ' .
-    \ shellescape('expressly prohibited, except as may be specifically authorized by prior') . ' ' .
-    \ shellescape('written agreement or permission of Pratt & Whitney.') . ' ' .
-    \ shellescape('') . ' ' .
-    \ shellescape('Author: <name of copyright holder>') . ' > ' . shellescape(g:corp_license_file)
-                 ]]
-                end
+                vim.loop.fs_stat(vim.g.corp_license_file, function(err)
+                    if err == nil then
+                        return
+                    end
+                    vim.loop.fs_open(vim.g.corp_license_file, "w", tonumber("0644", 8), function(err, fd)
+                        assert(not err, err)
+                        vim.loop.fs_write(fd, [===[Copyright (c) <year> Pratt & Whitney
+
+All rights reserved
+This document contains confidential and proprietary information of
+Pratt & Whitney, any reproduction, disclosure, or use in whole or in part is
+expressly prohibited, except as may be specifically authorized by prior
+written agreement or permission of Pratt & Whitney
+
+Author: <name of copyright holder>
+]===], function(err)
+                            assert(not err, err)
+                            vim.loop.fs_close(fd, function() end)
+                        end)
+                    end)
+                end)
             end,
             config = function()
                 function PrattAndWhitneyLicense()
@@ -113,54 +123,52 @@ exe '!printf ' . shellescape('%s\n', 1) . ' ' .
 
                 vim.cmd [[ command! PrattAndWhitney exe "lua PrattAndWhitneyLicense()" ]]
             end,
-        }
-        use { 'vim-scripts/loremipsum' }
-        use 'tpope/vim-unimpaired'
-        use 'sheerun/vim-polyglot'
-        use {
-            'Shougo/deoplete.nvim',
-            run = ':UpdateRemotePlugins',
-            config = function()
-                vim.cmd [[ call deoplete#enable() ]]
-            end,
-        }
-        use {
-            ft = {'zsh'},
-            'deoplete-plugins/deoplete-zsh',
-            requires = 'Shougo/deoplete.nvim',
-        }
-        use {
-            'neovim/nvim-lspconfig',
-            ft = {'rust','vim','python','typescript','cpp','go','zig','nix'},
-            requires = {
-                'ray-x/lsp_signature.nvim',
-                'simrat39/rust-tools.nvim',
-                'lvimuser/lsp-inlayhints.nvim',
-            },
-            config = function()
-                local init_fn = require('lsp.init')
-                local servers = {
-                    'vimls',
-                    'pyright',
-                    'tsserver',
-                    'clangd',
-                    'gopls',
-                    'zls',
-                    'rnix',
-                    'rust_analyzer'
-                }
-                init_fn.setup_servers(servers)
-            end,
-        }
-        use { 'deoplete-plugins/deoplete-lsp', requires = {
-            {'neovim/nvim-lspconfig'}, {'Shougo/deoplete.nvim'}
-        } }
-        use {
-            'folke/lsp-colors.nvim',
-            disable = true,
-        }
-        use 'ray-x/lsp_signature.nvim'
-        use {
+        },
+        'vim-scripts/loremipsum',
+        'tpope/vim-unimpaired',
+        'sheerun/vim-polyglot',
+        {
+          'Shougo/deoplete.nvim',
+          build = ':UpdateRemotePlugins',
+          lazy = false,
+          config = function()
+            vim.cmd [[ call deoplete#enable() ]]
+          end,
+        },
+        {
+          ft = {'zsh'},
+          'deoplete-plugins/deoplete-zsh',
+          dependencies = { 'Shougo/deoplete.nvim' },
+        },
+        {
+          'deoplete-plugins/deoplete-lsp',
+          ft = {'rust','vim','python','typescript','cpp','go','zig','nix'},
+          dependencies = { 'neovim/nvim-lspconfig', 'Shougo/deoplete.nvim' }
+        },
+        {
+          'neovim/nvim-lspconfig',
+          ft = {'rust','vim','python','typescript','cpp','go','zig','nix'},
+          dependencies = {
+            'ray-x/lsp_signature.nvim',
+            'simrat39/rust-tools.nvim',
+            'lvimuser/lsp-inlayhints.nvim',
+          },
+          config = function()
+            local init_fn = require('lsp.init')
+            local servers = {
+              'vimls',
+              'pyright',
+              'tsserver',
+              'clangd',
+              'gopls',
+              'zls',
+              'rnix',
+              'rust_analyzer'
+            }
+            init_fn.setup_servers(servers)
+          end,
+        },
+        {
             'jbyuki/venn.nvim',
             cmd = {'VBox'},
             config = function()
@@ -181,29 +189,21 @@ noremap <Leader>V :ToggleVEdit<Return>
 noremap <Leader>v :VBox<Return>
                 ]]
             end,
-        }
-        use {
+        },
+        {
             'lvimuser/lsp-inlayhints.nvim',
             config = function()
                 require("lsp-inlayhints").setup()
             end,
-        }
-        if vim.fn.has('nvim-0.6.0') then
-            use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
-        end
-
-        use {
+        },
+        { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
+        {
             'koka-lang/koka',
-            rtp = 'support/vim',
-            config = function()
-                nvim_create_augroups {
-                    koka_ftdetect = {
-                        { "BufNewfile,BufEnter", "*.kk", "setf koka" },
-                    },
-                }
+            config = function(plugin)
+                vim.opt.rtp:append(plugin.dir .. "/support/vim")
             end,
-        }
-    end)
+        },
+    })
 end
 
 return M
