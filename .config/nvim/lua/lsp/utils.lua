@@ -2,28 +2,28 @@ local M = {}
 
 function M.lsp_diagnostics()
   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = true,
-    underline = false,
-    signs = true,
-    update_in_insert = false,
-  })
+      virtual_text = true,
+      underline = false,
+      signs = true,
+      update_in_insert = false,
+    })
 
   local on_references = vim.lsp.handlers["textDocument/references"]
   vim.lsp.handlers["textDocument/references"] = vim.lsp.with(on_references, { loclist = true, virtual_text = true })
 
   -- Send diagnostics to quickfix list
   do
-      local method = "textDocument/publishDiagnostics"
-      local default_handler = vim.lsp.handlers[method]
-      vim.lsp.handlers[method] = function(err, meth, result, client_id, bufnr, config)
-          default_handler(err, meth, result, client_id, bufnr, config)
-          local diagnostics = vim.diagnostic.get()
-          local qflist = { open = false }
-          for _, diagnostic in pairs(diagnostics) do
-              table.insert(qflist, d)
-          end
-          vim.diagnostic.setqflist(qflist)
+    local method = "textDocument/publishDiagnostics"
+    local default_handler = vim.lsp.handlers[method]
+    vim.lsp.handlers[method] = function(err, meth, result, client_id, bufnr, config)
+      default_handler(err, meth, result, client_id, bufnr, config)
+      local diagnostics = vim.diagnostic.get()
+      local qflist = { open = false }
+      for _, diagnostic in pairs(diagnostics) do
+        table.insert(qflist, d)
       end
+      vim.diagnostic.setqflist(qflist)
+    end
   end
 end
 
@@ -31,18 +31,18 @@ function M.lsp_highlight(client, bufnr)
   if client.server_capabilities['documentHighlightProvider'] then
     vim.api.nvim_exec(
       [[
-        hi LspReferenceRead  cterm=bold gui=bold
-        hi LspReferenceText  cterm=bold gui=bold
-        hi LspReferenceWrite cterm=bold gui=bold
-        augroup lsp_document_highlight
-        autocmd! * <buffer>
-        autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
-        autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
-        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-        augroup END
-        ]],
+      hi LspReferenceRead  cterm=bold gui=bold
+      hi LspReferenceText  cterm=bold gui=bold
+      hi LspReferenceWrite cterm=bold gui=bold
+      augroup lsp_document_highlight
+      autocmd! * <buffer>
+      autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+      autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+      autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+      augroup END
+      ]],
       false
-    )
+      )
   end
 end
 
@@ -88,12 +88,12 @@ end
 function M.setup_server(server, config)
   local lspconfig = require "lspconfig"
   lspconfig[server].setup(vim.tbl_deep_extend("force", {
-    on_attach = M.lsp_attach,
-    on_exit = M.lsp_exit,
-    on_init = M.lsp_init,
-    flags = { debounce_text_changes = 150 },
-    init_options = config,
-  }, {}))
+        on_attach = M.lsp_attach,
+        on_exit = M.lsp_exit,
+        on_init = M.lsp_init,
+        flags = { debounce_text_changes = 150 },
+        init_options = config,
+    }, {}))
 
   local cfg = lspconfig[server]
   if not (cfg and cfg.cmd and vim.fn.executable(cfg.cmd[1]) == 1) then
