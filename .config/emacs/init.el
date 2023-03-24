@@ -256,12 +256,26 @@
   :commands lorem-ipsum-insert-paragraphs
   :commands lorem-ipsum-insert-sentences)
 
+(defvar init--font-list '("Droid Sans Mono 11" "Noto Mono 11" "DejaVu Sans Mono 11" "Courier New 11" "monospace 11")
+  "List of Fonts to try to use.")
+
+(defun init--set-font ()
+  "Set the frame font."
+  (seq-find
+   (lambda (font)
+     (condition-case nil
+         (progn
+           (set-frame-font font nil nil)
+           t)
+       (error nil)))
+     init--font-list))
+
 (use-package twilight-bright-theme
   :straight (twilight-bright-theme :host github
                                    :repo "jimeh/twilight-bright-theme.el")
   :if (display-graphic-p)
   :config
-  (set-frame-font "Droid Sans Mono 11" nil nil)
+  (init--set-font)
   (load-theme 'twilight-bright t))
 
 (unless (display-graphic-p)
@@ -338,6 +352,7 @@
   :hook (rust-mode . eglot-ensure)
   ;;:hook (sh-mode . init--bash-lsp-setup)
   ;; :hook (eglot-ensure-mode . lsp-enable-which-key-integration)
+  :hook (nix-mode . eglot-ensure)
   :hook (js-mode . eglot-ensure)
   :hook (zig-mode . eglot-ensure)
   :hook (haskell-mode . eglot-ensure)
@@ -349,7 +364,9 @@
               ("c" . #'eglot-code-actions)
               ("fb" . #'eglot-format-buffer)
               ("fr" . #'eglot-format))
-  :bind-keymap ("<leader>e" . init--eglot-keymap))
+  :bind-keymap ("<leader>e" . init--eglot-keymap)
+  :config
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil"))))
 
 ;; Activated by lsp-mode
 (use-package lsp-ui
