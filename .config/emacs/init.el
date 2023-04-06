@@ -126,6 +126,7 @@
 (use-package evil
   :straight t
   :demand t
+  :requires undo-tree
   :custom
   ;; evil-collection fixups depend on these being set
   (evil-want-keybinding nil)
@@ -200,6 +201,7 @@
   (setq whitespace-space-regexp  "\\(^ +\\| +$\\)"))
 
 (use-package tab-line
+  :requires evil
   :bind (:map evil-normal-state-map
               ("<leader>a" . #'tab-line-switch-to-prev-tab)
               ("<leader>s" . #'tab-line-switch-to-next-tab))
@@ -207,6 +209,7 @@
   (global-tab-line-mode 1))
 
 (use-package xref
+  :requires evil
   :bind (:map evil-normal-state-map
               ;; ("<leader>," . #'xref-pop-marker-stack)
               ("<leader>m" . #'xref-go-back)
@@ -233,6 +236,7 @@
   :hook (scheme-mode . rainbow-delimiters-mode))
 
 (use-package treemacs
+  :requires evil
   :straight (treemacs :host github
                       :repo "Alexander-Miller/treemacs")
   :commands treemacs
@@ -334,10 +338,8 @@
   :straight (yasnippet :host github
                        :repo "joaotavora/yasnippet"))
 
-(defvar init--eglot-keymap (make-sparse-keymap)
-  "Define an empty eglot keymap.")
-
 (use-package eglot
+  :requires evil
   :hook (python-mode . eglot-ensure)
   :hook (go-mode . eglot-ensure)
   :hook (c-mode . eglot-ensure)
@@ -352,16 +354,19 @@
   :hook (tuareg-mode . eglot-ensure)
   :hook (racket-mode . eglot-ensure)
   :commands eglot-ensure
-  :bind (:map init--eglot-keymap
+  :bind (:prefix "<leader>e"
+         :prefix-map init--eglot-prefix-keymap
+         :prefix-docstring "Eglot specific commands."
+         :map init--eglot-prefix-keymap
               ("h" . #'eldoc)
               ("c" . #'eglot-code-actions)
               ("fb" . #'eglot-format-buffer)
               ("fr" . #'eglot-format))
-  :bind-keymap ("<leader>e" . init--eglot-keymap)
   :config
   (add-to-list 'eglot-server-programs '(nix-mode . ("nil"))))
 
 (use-package flymake
+  :requires evil
   :hook (emacs-lisp-mode . flymake-mode)
   :bind (:map evil-normal-state-map
               ("[d" . #'flymake-goto-prev-error)
