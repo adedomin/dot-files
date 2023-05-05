@@ -164,7 +164,8 @@
               ("<leader>j"   . #'evil-window-left)
               ("<leader>k"   . #'evil-window-down)
               ("<leader>l"   . #'evil-window-up)
-              ("<leader>;"   . #'evil-window-right))
+              ("<leader>;"   . #'evil-window-right)
+              ("<leader>p"   . #'clipboard-yank))
   :bind (:map evil-visual-state-map
               ("j" . #'evil-backward-char)
               ("k" . #'evil-next-line)
@@ -386,6 +387,11 @@
   :straight (which-key :host github
                        :repo "justbur/emacs-which-key")
   :config (which-key-mode))
+
+(use-package counsel
+  :straight (counsel)
+  :bind (:map evil-normal-state-map
+              ("<leader>z" . #'counsel-find-file)))
 
 ;; BEGIN extra modes
 (use-package go-mode
