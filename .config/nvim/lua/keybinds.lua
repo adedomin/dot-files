@@ -50,7 +50,9 @@ function M.setup()
       },
       -- Emacsish
       ["/"] = { [[/\v\c]], 'Emacs-like forward search' },
-      ['<A-Tab>'] = { [[<C-V><Tab>]], 'Insert literal tab.', mode = 'i' },
+      -- other
+      ['<C-Tab>'] = { [[<C-V><Tab>]], 'Insert literal tab.', mode = 'i' },
+      ['<C-d>'] = { [[<cmd>cd %:h<cr>]], 'cd to buffer path.' },
 
     }, {})
 end

@@ -8,6 +8,14 @@ function M.setup()
   require('lazy').setup({
       'drmingdrmer/vim-tabbar',
       {
+        'folke/which-key.nvim',
+        config = function()
+          vim.o.timeout = true
+          vim.o.timeoutlen = 350
+          require('which-key').setup {}
+        end
+      },
+      {
         'nvim-telescope/telescope.nvim',
         cmd = {'Telescope'},
         init = function()
@@ -37,14 +45,6 @@ function M.setup()
         cmd = {"NERDTree", "NERDTreeToggle"},
       },
       {
-        'folke/which-key.nvim',
-        config = function()
-          vim.o.timeout = true
-          vim.o.timeoutlen = 350
-          require('which-key').setup {}
-        end
-      },
-      {
         'dense-analysis/ale',
         lazy = false,
         init = function()
@@ -65,20 +65,24 @@ function M.setup()
           vim.g.ale_disable_lsp = 1
         end,
       },
+      'tpope/vim-surround',
       {
         'ishan9299/nvim-solarized-lua',
         lazy = false,
         config = function()
-          vim.cmd [[
+          local guibg = vim.o.background == 'light' and '#eee8d5' or '#073642'
+          vim.cmd([[
           augroup Solarized_colorscheme
           autocmd!
-          autocmd ColorScheme * highlight Whitespace gui=bold guibg=#eee8d5
-          autocmd ColorScheme * highlight Conceal gui=bold guibg=#eee8d5
+          autocmd ColorScheme * highlight Whitespace gui=bold guibg=]] .. guibg .. [[
+
+          autocmd ColorScheme * highlight Conceal gui=bold guibg=]] .. guibg .. [[
+
           autocmd BufWinEnter,BufReadPre * setlocal conceallevel=2 concealcursor=nv
           autocmd BufWinEnter,BufReadPre * syntax match LeadingSpace /\(^ *\)\@<= / containedin=ALL conceal cchar= 
           augroup END
           colorscheme solarized
-          ]]
+          ]])
         end,
       },
       {
@@ -129,7 +133,46 @@ Author: <name of copyright holder>
         'tpope/vim-unimpaired',
         'sheerun/vim-polyglot',
         {
+          'hrsh7th/nvim-cmp',
+          dependencies = {
+            'hrsh7th/cmp-nvim-lsp',
+            'hrsh7th/cmp-vsnip',
+            'hrsh7th/vim-vsnip',
+          },
+          config = function()
+            local cmp = require('cmp')
+            cmp.setup({
+              snippet = {
+                -- REQUIRED - you must specify a snippet engine
+                expand = function(args)
+                  vim.fn["vsnip#anonymous"](args.body)
+                end,
+              },
+              mapping = cmp.mapping.preset.insert({
+                ['<Tab>'] = cmp.mapping(function(fallback)
+                  cmp.complete()
+                  if cmp.visible() then
+                    cmp.select_next_item()
+                  elseif vim.fn["vsnip#available"](1) == 1 then
+                    feedkey("<Plug>(vsnip-expand-or-jump)", "")
+                  else
+                    fallback()
+                  end
+                end, { "i", "s"}),
+                ['<CR>'] = cmp.mapping.confirm({ select = false }),
+              }),
+              sources = cmp.config.sources({
+                { name = 'nvim_lsp' },
+                { name = 'vsnip' },
+                { name = 'path' },
+                { name = 'buffer', keyword_length = 3 }
+              }),
+            })
+          end
+        },
+        {
           'Shougo/deoplete.nvim',
+          enabled = false,
           build = ':UpdateRemotePlugins',
           lazy = false,
           config = function()
@@ -138,17 +181,19 @@ Author: <name of copyright holder>
         },
         {
           ft = {'zsh'},
+          enabled = false,
           'deoplete-plugins/deoplete-zsh',
           dependencies = { 'Shougo/deoplete.nvim' },
         },
         {
           'deoplete-plugins/deoplete-lsp',
-          ft = {'rust','vim','python','typescript','cpp','go','zig','nix'},
+          enabled = false,
+          ft = {'rust','python','typescript','c','cpp','go','zig','nix'},
           dependencies = { 'neovim/nvim-lspconfig', 'Shougo/deoplete.nvim' }
         },
         {
           'neovim/nvim-lspconfig',
-          ft = {'rust','vim','python','typescript','cpp','go','zig','nix'},
+          ft = {'rust','python','javascript','typescript','c','cpp','go','zig','nix'},
           dependencies = {
             'ray-x/lsp_signature.nvim',
             'simrat39/rust-tools.nvim',
@@ -157,13 +202,12 @@ Author: <name of copyright holder>
           config = function()
             local init_fn = require('lsp.init')
             local servers = {
-              'vimls',
               'pyright',
               'tsserver',
               'clangd',
               'gopls',
               'zls',
-              'rnix',
+              'nil_ls',
               'rust_analyzer'
             }
             init_fn.setup_servers(servers)
@@ -197,7 +241,10 @@ noremap <Leader>v :VBox<Return>
             require("lsp-inlayhints").setup()
           end,
         },
-        { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
+        {
+          'nvim-treesitter/nvim-treesitter',
+          build = ':TSUpdate',
+        },
         {
           'koka-lang/koka',
           config = function(plugin)

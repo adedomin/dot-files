@@ -86,12 +86,14 @@ function M.lsp_attach(client, bufnr)
 end
 
 function M.setup_server(server, config)
+  local capabilities = require('cmp_nvim_lsp').default_capabilities()
   local lspconfig = require "lspconfig"
   lspconfig[server].setup(vim.tbl_deep_extend("force", {
         on_attach = M.lsp_attach,
         on_exit = M.lsp_exit,
         on_init = M.lsp_init,
         flags = { debounce_text_changes = 150 },
+        capabilities = capabilities,
         init_options = config,
     }, {}))
 
