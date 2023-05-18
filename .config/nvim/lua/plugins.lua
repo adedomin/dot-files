@@ -81,46 +81,10 @@ function M.setup()
     },
     {
       'antoyo/vim-licenses',
-      cmd = {'Gpl','Apache','Mit','Isc','PrattAndWhitney'},
+      cmd = {'Gpl','Apache','Mit','Isc'},
       init = function()
         vim.g.licenses_copyright_holders_name = "Anthony DeDominic <adedomin@gmail.com>"
         vim.g.licenses_default_commands = { "gpl", "apache", "mit", "isc" }
-
-        vim.g.licenses_corporate_copyright_name = "Anthony DeDominic <Anthony.DeDominic@prattwhitney.com>"
-        local corp = 'PrattAndWhitney'
-        vim.g.corp_license_file = vim.g.global_runtime_path .. '/../lazy/vim-licenses/licenses/' ..  corp .. '.txt'
-
-        vim.loop.fs_stat(vim.g.corp_license_file, function(err)
-          if err == nil then
-            return
-          end
-          vim.loop.fs_open(vim.g.corp_license_file, "w", tonumber("0644", 8), function(err, fd)
-            assert(not err, err)
-            vim.loop.fs_write(fd, [===[Copyright (c) <year> Pratt & Whitney
-
-All rights reserved
-This document contains confidential and proprietary information of
-Pratt & Whitney, any reproduction, disclosure, or use in whole or in part is
-expressly prohibited, except as may be specifically authorized by prior
-written agreement or permission of Pratt & Whitney
-
-Author: <name of copyright holder>
-]===], function(err)
-              assert(not err, err)
-              vim.loop.fs_close(fd, function() end)
-            end)
-          end)
-        end)
-      end,
-      config = function()
-        function PrattAndWhitneyLicense()
-          local copy_l = vim.g.licenses_copyright_holders_name
-          vim.g.licenses_copyright_holders_name = vim.g.licenses_corporate_copyright_name
-          vim.cmd [[ call InsertLicense('PrattAndWhitney') ]]
-          vim.g.licenses_copyright_holders_name = copy_l
-        end
-
-        vim.cmd [[ command! PrattAndWhitney exe "lua PrattAndWhitneyLicense()" ]]
       end,
     },
     'vim-scripts/loremipsum',
