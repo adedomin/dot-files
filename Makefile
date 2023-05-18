@@ -4,9 +4,8 @@ objects = $(shell find .config/ -type f) \
 		  $(shell find .local/ -type f) \
 
 # where -- is a separator
-symlinks = $(HOME)/.zshrc--$(HOME)/$(config_home)/zsh/zshrc \
-	       $(HOME)/.tmux.conf--$(HOME)/$(config_home)/tmux/tmux.conf \
-	       $(HOME)/.eslintrc.yml--$(HOME)/$(config_home)/eslint/eslintrc.yml
+symlinks = $(HOME)/.zshrc--$(config_home)/zsh/zshrc \
+	       $(HOME)/.tmux.conf--$(config_home)/tmux/tmux.conf \
 
 symlink_targets = \
 	$(foreach sym,$(symlinks),$(word 1,$(subst --, ,$(sym))))
