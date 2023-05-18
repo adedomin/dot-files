@@ -57,6 +57,15 @@ function M.setup()
     }, {})
 end
 
+function M.setup_telescope_mappings()
+  wk.register({
+    f = { '<cmd>Telescope find_files<cr>', 'Find file' },
+    g = { '<cmd>Telescope live_grep<cr>', 'Grep live' },
+    b = { '<cmd>Telescope buffers<cr>', 'Find buffer' },
+    h = { '<cmd>Telescope help_tags<cr>', 'help_tags' },
+  }, { prefix = '<leader>t' })
+end
+
 function M.setup_lsp_mappings()
   wk.register({
       [','] = { '<cmd>lua vim.lsp.buf.declaration()<cr>',      'goto declaration' },
