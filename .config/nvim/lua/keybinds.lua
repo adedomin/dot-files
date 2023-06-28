@@ -44,9 +44,11 @@ function M.setup()
       q = { [[<C-r>]], 'Redo' },
       ['['] = {
         q = { [[<cmd>CPrev<Return>]], 'Prev error' },
+        l = { [[<cmd>LPrev<Return>]], 'Prev loclist ' },
       },
       [']'] = {
         q = { [[<cmd>CNext<Return>]], 'Next error' },
+        l = { [[<cmd>LNext<Return>]], 'Next loclist' },
       },
       -- Emacsish
       ["/"] = { [[/\v\c]], 'Emacs-like forward search' },
@@ -87,7 +89,6 @@ function M.setup_lsp_mappings()
       r = { '<cmd>lua vim.lsp.buf.rename()<CR>', 'Rename symbol' },
       D = { '<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Type def' },
       e = { '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', 'Show diag' },
-      l = { '<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>', 'Populate loclist' },
       F = { '<cmd>lua vim.lsp.buf.format()<CR>', 'Buffer format' },
       t = { "<cmd>lua require('lsp-inlayhints').toggle()<CR>", 'Toggle hint inlays'},
 

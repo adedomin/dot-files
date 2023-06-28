@@ -2,46 +2,40 @@ local M = {}
 
 function M.lsp_diagnostics()
   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-      virtual_text = true,
-      underline = false,
-      signs = true,
-      update_in_insert = false,
-    })
+    virtual_text = true,
+    underline = false,
+    signs = true,
+    update_in_insert = false,
+  })
 
   local on_references = vim.lsp.handlers["textDocument/references"]
-  vim.lsp.handlers["textDocument/references"] = vim.lsp.with(on_references, { loclist = true, virtual_text = true })
+  vim.lsp.handlers["textDocument/references"] = vim.lsp.with(
+  on_references, { loclist = true, virtual_text = true }
+  )
 
-  -- Send diagnostics to quickfix list
-  do
-    local method = "textDocument/publishDiagnostics"
-    local default_handler = vim.lsp.handlers[method]
-    vim.lsp.handlers[method] = function(err, meth, result, client_id, bufnr, config)
-      default_handler(err, meth, result, client_id, bufnr, config)
-      local diagnostics = vim.diagnostic.get()
-      local qflist = { open = false }
-      for _, diagnostic in pairs(diagnostics) do
-        table.insert(qflist, d)
-      end
-      vim.diagnostic.setqflist(qflist)
+  vim.api.nvim_create_autocmd('DiagnosticChanged', {
+    callback = function(args)
+      vim.print(args.data.diagnostics)
+      vim.diagnostic.setloclist({ open = false })
+      vim.diagnostic.setqflist({ open = false })
     end
-  end
+  })
 end
 
 function M.lsp_highlight(client, bufnr)
   if client.server_capabilities['documentHighlightProvider'] then
-    vim.api.nvim_exec(
+    vim.api.nvim_exec2(
       [[
       hi LspReferenceRead  cterm=bold gui=bold
       hi LspReferenceText  cterm=bold gui=bold
       hi LspReferenceWrite cterm=bold gui=bold
       augroup lsp_document_highlight
-      autocmd! * <buffer>
-      autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
-      autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
-      autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+        autocmd! * <buffer>
+        autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+        autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
       augroup END
-      ]],
-      false
+      ]], {}
       )
   end
 end

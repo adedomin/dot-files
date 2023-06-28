@@ -38,6 +38,11 @@
             (init--getenv-or "XDG_CACHE_HOME" "~/.cache"))
   "Proper XDG cache path for temporaries.")
 
+(if (equal system-type "windows-nt")
+    (setq init--my-data-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal))
+  (setq init--my-state-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal))
+  (setq init--my-cache-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal)))
+
 ;; redefine user-emacs-directory so junk goes into XDG_DATA_HOME
 (setq user-emacs-directory init--my-data-home)
 ;; (setq native-comp-eln-load-path ',(bound-and-true-p native-comp-eln-load-path))
@@ -340,6 +345,7 @@
                        :repo "joaotavora/yasnippet"))
 
 (use-package eglot
+  :straight t
   :requires evil
   :hook (python-mode . eglot-ensure)
   :hook (go-mode . eglot-ensure)
@@ -381,17 +387,25 @@
   (company-dabbrev-downcase nil)
   (company-idle-delay 0)
   (company-minimum-prefix-length 1)
-  :hook (prog-mode . company-mode))
+  :hook (prog-mode . company-mode)
+;;  :config
+;;  (defun init--company-active-ret ()
+;;    (interactive)
+;;    (if (company-explicit-action-p)
+;;        (company-complete)
+;;      (call-interactively
+;;       (or (key-binding (this-command-keys))
+;;           (key-binding (kbd "RET"))))))
+;;  (dolist (key '("<return>" "RET"))
+;;    (define-key company-active-map (kbd key)
+;;      #'init--company-active-ret)))
+  )
+
 
 (use-package which-key
   :straight (which-key :host github
                        :repo "justbur/emacs-which-key")
   :config (which-key-mode))
-
-(use-package counsel
-  :straight (counsel)
-  :bind (:map evil-normal-state-map
-              ("<leader>z" . #'counsel-find-file)))
 
 ;; BEGIN extra modes
 (use-package go-mode
@@ -481,17 +495,23 @@ buffer `*poked*'."
   (forward-line -1))
 
 (use-package eldoc-box
-  :disabled
   :straight (eldoc-box)
   :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 (use-package evil-collection
+  :requires evil
   :straight t
   ;;:custom
   ;; (evil-collection-use-company-tng nil)
   
   :config
   (evil-collection-init))
+
+(use-package evil-surround
+  :requires evil
+  :straight t
+  :config
+  (global-evil-surround-mode 1))
 
 (use-package gcmh
   :straight t
