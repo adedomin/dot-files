@@ -15,7 +15,6 @@ function M.lsp_diagnostics()
 
   vim.api.nvim_create_autocmd('DiagnosticChanged', {
     callback = function(args)
-      vim.print(args.data.diagnostics)
       vim.diagnostic.setloclist({ open = false })
       vim.diagnostic.setqflist({ open = false })
     end

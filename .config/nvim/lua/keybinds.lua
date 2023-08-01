@@ -8,6 +8,12 @@ function M.setup()
     command! LNext try | lnext | catch | lfirst | endtry
     command! LPrev try | lprev | catch | llast  | endtry
   ]]
+
+  wk.register({
+      ['p'] = { '"+p', 'Paste from system clipboard' },
+      ['y'] = { '"+y', 'Copy  to system clipboard' },
+    }, { prefix = "<leader>" })
+
   wk.register({
       -- name = 'Buffer stuff',
       ['\\'] = { '<cmd>vsplit<cr>', 'Split vertical' },
@@ -24,6 +30,7 @@ function M.setup()
       k = { '<C-w>j',     'Move to -v' },
       j = { '<C-w>h',     'Move to <-' },
     }, { prefix = "<leader>" })
+
   wk.register({
       -- name = 'Buffer resizing',
       ['<A-down>']  = { '<C-w>-', 'Shrink buffer vert' },
@@ -55,17 +62,16 @@ function M.setup()
       -- other
       ['<C-Tab>'] = { [[<C-V><Tab>]], 'Insert literal tab.', mode = 'i' },
       ['<C-d>'] = { [[<cmd>cd %:h<cr>]], 'cd to buffer path.' },
-
     }, {})
 end
 
 function M.setup_telescope_mappings()
   wk.register({
-    f = { '<cmd>Telescope find_files<cr>', 'Find file' },
-    g = { '<cmd>Telescope live_grep<cr>', 'Grep live' },
-    b = { '<cmd>Telescope buffers<cr>', 'Find buffer' },
-    h = { '<cmd>Telescope help_tags<cr>', 'help_tags' },
-  }, { prefix = '<leader>t' })
+      f = { '<cmd>Telescope find_files<cr>', 'Find file' },
+      g = { '<cmd>Telescope live_grep<cr>', 'Grep live' },
+      b = { '<cmd>Telescope buffers<cr>', 'Find buffer' },
+      h = { '<cmd>Telescope help_tags<cr>', 'help_tags' },
+    }, { prefix = '<leader>t' })
 end
 
 function M.setup_lsp_mappings()

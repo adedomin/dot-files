@@ -19,6 +19,11 @@
         envres
       default)))
 
+(defvar-local init--my-config-home
+    (format "%s/emacs/"
+            (init--getenv-or "XDG_CONFIG_HOME" "~/.config"))
+  "Proper XDG Config Home path.")
+
 ;; make emacs more XDG by using DATA_HOME for packages
 (defvar-local init--my-data-home
     (format "%s/emacs/"
@@ -45,7 +50,12 @@
 
 ;; redefine user-emacs-directory so junk goes into XDG_DATA_HOME
 (setq user-emacs-directory init--my-data-home)
-;; (setq native-comp-eln-load-path ',(bound-and-true-p native-comp-eln-load-path))
+;; eln-load-path doesn't get the hint...
+(setq native-comp-eln-load-path
+      (append (list (format "%s/eln-cache/" init--my-data-home))
+              (seq-filter #'(lambda (item)
+                              (not (string-match-p (regexp-quote init--my-config-home) item)))
+                          (bound-and-true-p native-comp-eln-load-path))))
 ;; (add-to-list 'native-comp-eln-load-path (concat init--my-data-home
 ;;                                         "eln-cache/"))
 
@@ -188,6 +198,20 @@
   :config
   (add-to-list 'tramp-remote-path "~/.nix-profile/bin")
   (add-to-list 'tramp-remote-path "~/.local/bin"))
+
+(use-package ido
+  :defer nil
+  :bind (("M-x" . init--ido-command-complete))
+  :config
+  (defun init--ido-command-complete ()
+    "Complete commands using ido-mode."
+    (interactive)
+    (call-interactively
+     (intern
+      (ido-completing-read
+       "M-x "
+       (all-completions "" obarray 'commandp)))))
+  (ido-mode))
 
 (use-package display-line-numbers
   :custom (display-line-numbers-type 'relative)
@@ -370,7 +394,8 @@
               ("fb" . #'eglot-format-buffer)
               ("fr" . #'eglot-format))
   :config
-  (add-to-list 'eglot-server-programs '(nix-mode . ("nil"))))
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+  (add-to-list 'eglot-server-programs '(purescript-mode . ("purescript-language-server" "--stdio"))))
 
 (use-package flymake
   :requires evil
@@ -446,7 +471,6 @@
   :mode "\\.hs\\'")
 
 (use-package purescript-mode
-  :disabled
   :straight (purescript-mode :host github
                              :repo "purescript-emacs/purescript-mode")
   :custom (purescript-mode-hook 'purescript-indentation-mode)

@@ -59,7 +59,7 @@ augroup END
   o.background = "light"
 
   o.mouse = "a"
-  o.clipboard = "unnamedplus"
+  -- o.clipboard = ""
   o.incsearch = true
   o.inccommand = "nosplit"
   o.hlsearch = true

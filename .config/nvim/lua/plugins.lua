@@ -225,6 +225,12 @@ function M.setup()
           osc52.copy(table.concat(lines, '\n'))
         end
 
+        local function copy_from_unnamed_to_osc52()
+          osc52.copy_register('"')
+        end
+
+        vim.api.nvim_create_autocmd('TextYankPost', { callback = copy_from_unnamed_to_osc52 })
+
         local function paste()
           return {
             vim.fn.split(vim.fn.getreg(''), '\n'),
@@ -232,11 +238,11 @@ function M.setup()
           }
         end
 
-        vim.g.clipboard = {
-          name = 'osc52',
-          copy = {['+'] = copy, ['*'] = copy},
-          paste = {['+'] = paste, ['*'] = paste},
-        }
+        -- vim.g.clipboard = {
+        --   name = 'osc52',
+        --   copy = {['+'] = copy, ['*'] = copy},
+        --   paste = {['+'] = paste, ['*'] = paste},
+        -- }
       end,
     },
   })

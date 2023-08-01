@@ -22,23 +22,37 @@ path=($XDG_CONFIG_HOME/zsh/util-bin ~/.local/bin $path)
 # let java know where fonts are
 export JAVA_FONTS=/usr/share/fonts/TTF
 
-# add custom terminfos
-# leading : means /usr/share/terminfo or system default terminfo
-# export TERMINFO_DIRS=$TERMINFO_DIRS:$XDG_DATA_HOME/terminfo
-# if terminal type is unknown, default to xterm-256color and pray
-if [[ -z "$terminfo" ]]; then
-    TERM=xterm-256color
-    # try just xterm then
-    if [[ -z "$terminfo" ]]; then
-        TERM=xterm
+zshrc__safe_ish_terminals=(xterm-256color xterm ansi)
+try_term () {
+    infocmp "$1" &>/dev/null
+}
+
+
+if [[ -z $terminfo ]]; then
+    # foot-extra seems to be a a terminfo name used by some downstream packages of foot.
+    # foot is the ncurses provided one, but it has some major issues.
+    #
+    # see https://codeberg.org/dnkl/foot/issues/670
+    #     https://codeberg.org/dnkl/foot/issues/671
+    #
+    # If we do not have foot-extra, maybe we have foot...
+    if [[ $TERM = foot-extra ]]; then
+        if try_term foot; then
+            TERM=foot
+        else
+            TERM=xterm-256color
+        fi
+        COLORTERM=truecolor
     else
-        export COLORTERM=truecolor
+        for term in $zshrc__safe_ish_terminals; do
+            if try_term $term; then
+                TERM=$term
+                break
+            fi
+        done
+        # best fallback I can think of
+        TERM=dumb
     fi
-# make sure colorterm is defined if useful
-elif [[ -z "$COLORTERM" ]]; then
-    case "$TERM" in
-        xterm*|alacritty*|foot) export COLORTERM=truecolor ;;
-    esac
 fi
 
 # some/dir => cd some/dir
@@ -85,6 +99,8 @@ autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
 
 # Kill all history file insanity
 zsh_history_dir=${XDG_STATE_HOME:-$HOME/.local/state}/history
@@ -455,8 +471,6 @@ fi
 ### BEGIN ZSH Misc ###
 bindkey -e
 # adds delete key behavior
-bindkey "^[[A" up-line-or-beginning-search
-bindkey "^[[B" down-line-or-beginning-search
 bindkey "\e[3~" delete-char
 
 containme () {
