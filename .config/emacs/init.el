@@ -44,9 +44,10 @@
   "Proper XDG cache path for temporaries.")
 
 (if (equal system-type "windows-nt")
+    (setq init--my-config-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-config-home nil 'literal))
     (setq init--my-data-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal))
-  (setq init--my-state-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal))
-  (setq init--my-cache-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-data-home nil 'literal)))
+  (setq init--my-state-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-state-home nil 'literal))
+  (setq init--my-cache-home (replace-regexp-in-string (regexp-quote "\\") "/" init--my-cache-home nil 'literal)))
 
 ;; redefine user-emacs-directory so junk goes into XDG_DATA_HOME
 (setq user-emacs-directory init--my-data-home)
