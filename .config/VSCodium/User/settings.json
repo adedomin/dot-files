@@ -1,0 +1,87 @@
+{
+    "files.autoSave": "afterDelay",
+    "workbench.colorTheme": "Default Light+",
+    "workbench.enableExperiments": false,
+    "workbench.settings.enableNaturalLanguageSearch": false,
+    "editor.lineNumbers": "relative",
+    "editor.cursorStyle": "block",
+    "editor.formatOnSave": true,
+    "diffEditor.wordWrap": "on",
+    "[jsonc]": {
+        "editor.formatOnSave": false,
+    },
+
+    "vim.cursorStylePerMode.insert": "line",
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.replace": "underline",
+    "vim.leader": " ",
+    "vim.vimrc.enable": false,
+    "vim.easymotion": true,
+    "vim.camelCaseMotion.enable": true,
+    "vim.highlightedyank.enable": true,
+    "vim.joinspaces": false,
+    "vim.sneak": true,
+    "vim.sneakUseIgnorecaseAndSmartcase": true,
+    "vim.useSystemClipboard": true,
+    "vim.normalModeKeyBindings": [
+        { "before": [ "<Leader>", ";" ],  "after": [ "<C-w>", "l" ] },
+        { "before": [ "<Leader>", "l" ],  "after": [ "<C-w>", "k" ] },
+        { "before": [ "<Leader>", "k" ],  "after": [ "<C-w>", "j" ] },
+        { "before": [ "<Leader>", "j" ],  "after": [ "<C-w>", "h" ] },
+        { "before": [ "<A-down>" ],       "after": [ "<C-w>", "-" ] },
+        { "before": [ "<A-up>" ],         "after": [ "<C-w>", "+" ] },
+        { "before": [ "<A-left>" ],       "after": [ "<C-w>", "<" ] },
+        { "before": [ "<A-right>" ],      "after": [ "<C-w>", ">" ] }
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        { "before": [ "<Leader>", "\\" ], "commands": [ ":vsplit" ] },
+        { "before": [ "<Leader>", "-" ],  "commands": [ ":split" ] },
+        { "before": [ "<Leader>", "a" ],  "commands": [ ":bprev" ] }, 
+        { "before": [ "<Leader>", "s" ],  "commands": [ ":bnext" ] },
+        { "before": [ "<Leader>", "d" ],  "commands": [ ":close" ] },
+        { "before": [ "<Leader>", "f" ],  "commands": [ ":only" ] },
+        { "before": [ "\\" ],             "after": [ "$" ] },
+        { "before": [ ";" ],              "after": [ "l" ] },
+        { "before": [ "l" ],              "after": [ "k" ] },
+        { "before": [ "k" ],              "after": [ "j" ] },
+        { "before": [ "j" ],              "after": [ "h" ] },
+        { "before": [ "K" ],              "after": [ "<C-d>" ] },
+        { "before": [ "L" ],              "after": [ "<C-u>" ] },
+        { "before": [ "q" ],              "after": [ "<C-r>" ] },
+        { "before": [ "<Leader>", ":" ],  "commands": [ "workbench.action.showCommands" ] }
+    ],
+    "vim.insertModeKeyBindingsNonRecursive": [
+        { "before": [ "<S-Tab>" ],        "after": [ "<C-V>", "<Tab>" ] }
+    ],
+
+    "rust-analyzer.server.path": "${userHome}/.local/state/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer",
+    "rust-analyzer.server.extraEnv": {
+        "RUSTUP_HOME": "${userHome}/.local/state/rustup",
+        "CARGO_HOME": "${userHome}/.local/state/cargo",
+        "PATH": "${userHome}/.local/state/cargo/bin:/usr/local/bin:/usr/bin"
+    },
+    "rust-analyzer.inlayHints.maxLength": 50,
+    "rust-analyzer.checkOnSave": true,
+
+    "json.schemaDownload.enable": false,
+    "typescript.disableAutomaticTypeAcquisition": true,
+    "extensions.autoCheckUpdates": false,
+    "extensions.autoUpdate": false,
+    "npm.fetchOnlinePackageInfo": false,
+    "update.mode": "none",
+    "nix.enableLanguageServer": true,
+
+    "go.buildOnSave": "workspace",
+
+    "redhat.telemetry.enabled": false,
+
+    "python.defaultInterpreterPath": "python3",
+    "python.envFile": "${workspaceFolder}/.venv",
+    "python.disableInstallationCheck": true,
+    "python.experiments.optOutFrom": [
+        "All"
+    ],
+    "python.pythonPath": "python3",
+    "python.languageServer": "None",
+    "git.confirmSync": false,
+}

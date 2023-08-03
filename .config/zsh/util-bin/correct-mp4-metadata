@@ -1,0 +1,28 @@
+#!/bin/sh
+for file; do
+    [ -d "$file" ] && continue
+    container="${file##*.}"
+    title="${file##*/}"
+    title="${title%.*}"
+    curr_title="$(ffprobe -loglevel error \
+                          -i "$file" \
+                          -show_entries format_tags=title \
+                  | grep -m 1 TAG:title= \
+                  | cut -d= -f2)"
+    if [ "$title" = "$curr_title" ]; then
+        printf "%s\\n" "Title for [== $file ==] is already correct."
+    else
+        printf "%s\\n" "Changing title of [== $file ==] to [- $title -] from [- $curr_title -]"
+        # make the temps in dir since they can be quite large
+        tmp="$(mktemp tmp.XXXXXXXXXX."$container")"
+        # we use cat to preserve target metadata as best as possible.
+        ffmpeg -loglevel error \
+               -i "$file" \
+               -metadata title="${file%.mp4}" \
+               -codec copy \
+               -y "$tmp" \
+        && cat -- "$tmp" > "$file"
+        rm -- "$tmp"
+    fi
+done
+

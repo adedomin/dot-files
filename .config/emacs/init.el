@@ -339,7 +339,8 @@
 (use-package twilight-bright-theme
   :straight (twilight-bright-theme :host github
                                    :repo "jimeh/twilight-bright-theme.el")
-  :if (display-graphic-p)
+  ;; We live in the brave new world of COLORTERM=truecolor
+  ;; :if (display-graphic-p)
   :config
   (init--set-font)
   (load-theme 'twilight-bright t))
@@ -521,6 +522,8 @@ buffer `*poked*'."
 
 (use-package eldoc-box
   :straight (eldoc-box)
+  ;; Appears to cause weird behavior on terminals
+  :if (display-graphic-p)
   :hook (prog-mode . eldoc-box-hover-at-point-mode))
 
 (use-package evil-collection
