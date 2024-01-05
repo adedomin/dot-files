@@ -1,4 +1,4 @@
-theme = "solarized_light"
+theme = "solarized_dark"
 
 [editor]
 line-number = "relative"
@@ -6,17 +6,32 @@ mouse = true
 middle-click-paste = true
 cursorline = true
 cursorcolumn = true
+auto-pairs = false
+
+[editor.soft-wrap]
+enable = true
 
 [editor.cursor-shape]
 insert = "bar"
 normal = "block"
 select = "underline"
 
-[keys.normal]
-j = "move_char_left"
-k = "move_line_down"
-l = "move_line_up"
-";" = "move_char_right"
+[editor.lsp]
+display-inlay-hints = true
 
-[keys.select]
-h = "collapse_selection"
+[editor.indent-guides]
+render = true
+character = "⸽"
+
+[editor.whitespace.render]
+tab = "all"
+
+[editor.whitespace.characters]
+tabpad = "."
+
+[editor.statusline]
+center = ["version-control"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+
+[keys.normal.space]
+"i" = ":toggle lsp.display-inlay-hints"
