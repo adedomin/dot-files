@@ -1,0 +1,8 @@
+#!/bin/zsh
+image=${1:-fedora-toolbox:latest}; (( $# > 1 )) && shift
+comm=${2:-bash};                   (( $# > 1 )) && shift
+podman run -it \
+    --rm \
+    --workdir=/work \
+    --volume=$PWD:/work \
+    $image $comm

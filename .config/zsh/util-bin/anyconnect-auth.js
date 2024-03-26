@@ -22,7 +22,7 @@ const AnyConnectAuthenticator = new Lang.Class({
     },
 
     // Callback function for 'activate' signal 
-    _onActivate: function () {
+    _onActivate: function() {
         // Present window when active
         this._window.present();
 
@@ -32,7 +32,7 @@ const AnyConnectAuthenticator = new Lang.Class({
     },
 
     // Callback function for 'startup' signal
-    _onStartup: function () {
+    _onStartup: function() {
         // Build the UI
         this._buildUI();
 
@@ -41,7 +41,7 @@ const AnyConnectAuthenticator = new Lang.Class({
     },
 
     // Build the application's UI
-    _buildUI: function () {
+    _buildUI: function() {
         // Create the application window
         this._window = new Gtk.ApplicationWindow({
             application: this,
@@ -75,7 +75,7 @@ const AnyConnectAuthenticator = new Lang.Class({
         this._window.show_all();
     },
 
-    _connectSignals: function () {
+    _connectSignals: function() {
         // Change the Window title when a new page is loaded
         this._webView.connect('notify::title', () => {
             this._window.set_title(this._webView.title);
@@ -83,7 +83,7 @@ const AnyConnectAuthenticator = new Lang.Class({
 
         const cookies = this._webContext.get_cookie_manager();
         cookies.set_persistent_storage(`${GLib.getenv('XDG_DATA_HOME')}/anyconnect-authenticator.txt`,
-                                       WebKit.CookiePersistentStorage.TEXT);
+            WebKit.CookiePersistentStorage.TEXT);
         cookies.connect('changed', (cookies) => {
             const uri = this._webView.get_uri();
             if (/\/\+webvpn\+\/index.html$/.test(uri)) {

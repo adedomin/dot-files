@@ -104,8 +104,8 @@ autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search
-bindkey "^[[B" down-line-or-beginning-search
+bindkey -e $terminfo[cuu1] up-line-or-beginning-search
+bindkey -e $terminfo[cud1] down-line-or-beginning-search
 
 # Kill all history file insanity
 zsh_history_dir=${XDG_STATE_HOME:-$HOME/.local/state}/history
@@ -340,11 +340,13 @@ export AWS_CLI_HISTORY_FILE=$XDG_CACHE_HOME/history/aws
 ### END XDG ###
 
 ### BEGIN alias ###
-alias sudo='sudo '
 alias exe='chmod +x'
 alias ls='ls --classify --all --color=auto --hyperlink=auto --group-directories-first'
-alias clbin="curl -F 'clbin=<-' https://clbin.com"
-alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
+if [[ -z $WAYLAND_DISPLAY ]]; then
+    alias shrug="xclip -i <<< '¯\\_(ツ)_/¯'"
+else
+    alias shrug="print -n -- '¯\\_(ツ)_/¯' | wl-copy"
+fi
 
 # For stuff like git commit, etc.
 export EDITOR=vim
@@ -352,18 +354,6 @@ if hash hx 2>/dev/null; then
     EDITOR=hx
 elif hash nvim 2>/dev/null; then
     EDITOR=nvim
-fi
-
-
-# workpass autocomplete and alias
-if hash pass 2>/dev/null; then
-    compdef _pass workpass
-    zstyle ':completion::complete:workpass::' prefix $HOME/Work-Sync/stow/pass/.password-store
-    workpass() {
-        PASSWORD_STORE_DIR=$HOME/Work-Sync/stow/pass/.password-store pass $@
-    }
-    # keep .password-store out of my homedir
-    export PASSWORD_STORE_DIR=$HOME/Sync/stow/pass/.password-store
 fi
 
 if hash apt 2>/dev/null; then
@@ -397,7 +387,7 @@ fi
 
 ### BEGIN other env ###
 # if connected over ssh, look for SSH_AUTH_SOCK in systemd env
-[[ -n "$SSH_CLIENT"      ]] && {
+[[ -n "$SSH_CLIENT" ]] && {
     if SSH_AUTH_SOCK="$(
         systemctl --user show-environment \
         | sed -n '
@@ -519,16 +509,6 @@ fi
 bindkey -e
 # adds delete key behavior
 bindkey "\e[3~" delete-char
-
-containme () {
-    image=${1:-fedora-toolbox:latest}; (( $# > 1 )) && shift
-    comm=${2:-bash};                   (( $# > 1 )) && shift
-    podman run -it \
-        --rm \
-        --workdir=/work \
-        --volume=$PWD:/work \
-        $image $comm
-}
 
 # source customizations
 if [[ -n $XDG_CONFIG_HOME/zsh/custom/*(#qN) ]]; then

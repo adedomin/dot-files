@@ -1,0 +1,12 @@
+#!/bin/sh
+
+host=$1
+laptop=$2
+
+gjs \
+    "$XDG_CONFIG_HOME"/zsh/util-bin/anyconnect-auth.js https://"$host" \
+| openconnect -v \
+    --local-hostname="$laptop" \
+    --cookie-on-stdin \
+    --script-tun --script "$HOME/.local/bin/ocproxy -v -k 60 -D 9123" \
+    "$host"

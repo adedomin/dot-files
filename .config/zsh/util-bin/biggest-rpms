@@ -1,0 +1,8 @@
+#!/bin/sh
+rpm -qia \
+| awk '$1 == "Name" { n = $3 }
+       $1 == "Size" { s = $3 }
+       $1 == "Description" { print s  " " n }
+  ' \
+| sort --key=1nr \
+| numfmt --to=iec-i --suffix=B --field=1
