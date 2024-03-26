@@ -1,0 +1,2 @@
+#!/bin/sh
+gopass ls --flat | fzf | xargs -d'\n' -n1 gopass "${1:-show}"
