@@ -1,8 +1,4 @@
 #!/bin/sh 
-if [ $# -eq 0 ]; then
-  set -- show
-fi
-
 if pass=$(gopass ls --flat | fzf); then
-  gopass "$@" "$pass"
+  gopass "$@" -- "$pass"
 fi
