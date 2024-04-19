@@ -243,17 +243,6 @@ zshprompt_escape_percent() {
     REPLY=${REPLY//\)/\%\)}
 }
 
-#zshprompt_last_exit() {
-#    local last_exit=$?
-#
-#    case $last_exit in
-#        0) zshprompt_data[last_exit]="${green_exit}${last_exit}$reset_color" ;;
-#        *) zshprompt_data[last_exit]="${red_exit}${last_exit}$reset_color" ;;
-#    esac
-#
-#    zshprompt_data[COLOR_SIZE]=$(( $COLOR_SIZE + BASE16_CSIZE ))
-#}
-
 # load vcs_info plugin
 autoload -Uz vcs_info &&
     zstyle ':vcs_info:*' formats $'%s\0%r\0%b\0%R\0/%S' &&
