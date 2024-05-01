@@ -3,4 +3,4 @@ check.command = "clippy"
 
 [[language]]
 name = "xml"
-formatter = { command = "xmllint", args = ["--format"] }
+formatter = { command = "xmllint", args = ["--format", "-"] }
