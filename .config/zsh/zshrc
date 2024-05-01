@@ -428,8 +428,8 @@ fi
 # END go #
 
 # BEGIN rust #
-export CARGO_HOME=$XDG_STATE_HOME/cargo
-if [[ -d $CARGO_HOME ]]; then
+if hash cargo 2>/dev/null; then
+    export CARGO_HOME=$XDG_STATE_HOME/cargo
     path=($CARGO_HOME/bin $path)
 fi
 export RUSTUP_HOME=$XDG_STATE_HOME/rustup

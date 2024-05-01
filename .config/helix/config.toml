@@ -25,6 +25,8 @@ character = "⸽"
 
 [editor.whitespace.render]
 tab = "all"
+nbsp = "all"
+newline = "all"
 
 [editor.whitespace.characters]
 tabpad = "."

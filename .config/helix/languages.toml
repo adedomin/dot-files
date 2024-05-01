@@ -1,0 +1,6 @@
+[language-server.rust-analyzer.config]
+check.command = "clippy"
+
+[[language]]
+name = "xml"
+formatter = { command = "xmllint", args = ["--format"] }
