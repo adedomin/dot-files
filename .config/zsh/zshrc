@@ -73,18 +73,17 @@ zmodload zsh/mathfunc
 ### BEGIN TERMINAL TITLE ###
 set-terminal-title() {
     if [[ -z "$*" ]]; then
-        print -n -P -- '%{\033]0;%}%l%{\007%}'
+        print -n -- $terminfo[tsl]
+        print -n -P -- '%l'
+        print -n -- $terminfo[fsl]
     else
-        print -n -r -- $'\033]0;'"$*"$'\007'
+        print -n -r -- "$terminfo[tsl]$*$terminfo[fsl]"
     fi
 }
 
-case $TERM in
-    xterm*)         set-terminal-title ;;
-    gnome-terminal) set-terminal-title ;;
-    alacritty)      set-terminal-title ;;
-    foot)           set-terminal-title ;;
-esac
+if [[ -n $terminfo[tsl] && -n $terminfo[fsl] ]]; then
+    set-terminal-title
+fi
 ### END TERMINAL TITLE ###
 
 ### BEGIN completions ###
