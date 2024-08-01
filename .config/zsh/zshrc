@@ -507,3 +507,4 @@ else
     true # negates exit 1 if above conditional is false
 fi
 ### END ZSH Misc ###
+#zprof
