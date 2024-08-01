@@ -309,11 +309,6 @@ fi
 
 ### END prompt ###
 
-### BEGIN zsh-highlighting ###
-source $XDG_DATA_HOME/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ||
-    print -u 2 -- 'WARNING: Failed to source zsh-syntax-highlighting'
-### END zsh-highlighting ###
-
 ### BEGIN XDG ###
 # export TASKRC=$XDG_CONFIG_HOME/taskwarrior/task.conf
 # export WGETRC=$XDG_CONFIG_HOME/wget
