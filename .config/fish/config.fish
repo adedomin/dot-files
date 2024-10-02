@@ -7,6 +7,7 @@
 [ -z "$XDG_CONFIG_DIRS" ] && set -x XDG_CONFIG_DIRS /etc/xdg
 
 if status is-interactive
+    set fish_greeting
     ## START GIT
     set __fish_git_prompt_show_informative_status 1
     set __fish_git_prompt_showcolorhints 1
@@ -37,7 +38,7 @@ if status is-interactive
     end
 
     # BEGIN DNF aliases #
-    if hash dnf 2>/dev/null
+    if command -q dnf
         alias inst 'sudo dnf install'
         alias remo 'sudo dnf remove'
         alias updt 'sudo dnf update'
@@ -48,18 +49,18 @@ if status is-interactive
     # END   DNF aliases #
 
     # BEGIN rust #
-    if hash cargo 2>/dev/null
+    if command -q cargo
         set -x CARGO_HOME $XDG_STATE_HOME/cargo
         set -x PATH "$CARGO_HOME/bin:$PATH"
     end
-    if hash rustup 2>/dev/null
+    if command -q rustup
         set -x RUSTUP_HOME $XDG_STATE_HOME/rustup
         set -x PATH (path dirname (rustup which rustc))":$PATH"
     end
     # END   rust #
 
     # BEGIN javascript #
-    if hash npm 2>/dev/null
+    if command -q npm
         set -x NPM_CONFIG_USERCONFIG $XDG_CONFIG_HOME/npm/config
         if [ ! -f $XDG_CONFIG_HOME/npm/config ]
             mkdir -p $XDG_CONFIG_HOME/npm $XDG_STATE_HOME/npm
@@ -77,7 +78,7 @@ if status is-interactive
     # END kube #
 
     # BEGIN go #
-    if hash go 2>/dev/null
+    if command -q go
         set -x GOPATH "$XDG_STATE_HOME/go"
         set -x PATH "$GOPATH/bin:$PATH"
     end
