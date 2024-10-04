@@ -1,12 +1,13 @@
-[ -z "$XDG_CONFIG_HOME" ] && set -x XDG_CONFIG_HOME "$HOME/.config"
-[ -z "$XDG_CACHE_HOME" ] && set -x XDG_CACHE_HOME "$HOME/.cache"
-[ -z "$XDG_DATA_HOME" ] && set -x XDG_DATA_HOME "$HOME/.local/share"
-[ -z "$XDG_STATE_HOME" ] && set -x XDG_STATE_HOME "$HOME/.local/state"
-[ -z "$XDG_RUNTIME_DIR" ] && set -x XDG_RUNTIME_DIR "$HOME/.local/run"
-[ -z "$XDG_DATA_DIRS" ] && set -x XDG_DATA_DIRS "$XDG_DATA_HOME:/usr/local/share:/usr/share"
-[ -z "$XDG_CONFIG_DIRS" ] && set -x XDG_CONFIG_DIRS /etc/xdg
+set -q XDG_CONFIG_HOME || set -x XDG_CONFIG_HOME "$HOME/.config"
+set -q XDG_CACHE_HOME || set -x XDG_CACHE_HOME "$HOME/.cache"
+set -q XDG_DATA_HOME || set -x XDG_DATA_HOME "$HOME/.local/share"
+set -q XDG_STATE_HOME || set -x XDG_STATE_HOME "$HOME/.local/state"
+set -q XDG_RUNTIME_DIR || set -x XDG_RUNTIME_DIR "$HOME/.local/run"
+set -q XDG_DATA_DIRS || set -x --path XDG_DATA_DIRS "$XDG_DATA_HOME:/usr/local/share:/usr/share"
+set -q XDG_CONFIG_DIRS || set -x XDG_CONFIG_DIRS /etc/xdg
 
 if status is-interactive
+    # disable help message.
     set fish_greeting
     ## START GIT
     set __fish_git_prompt_show_informative_status 1
@@ -29,7 +30,7 @@ if status is-interactive
     ## START ENV
     set -x EDITOR hx
     # basic $PATH
-    set -x PATH "$XDG_CONFIG_HOME/zsh/util-bin:$HOME/.local/bin:$PATH"
+    set --prepend -x PATH "$XDG_CONFIG_HOME/zsh/util-bin:$HOME/.local/bin"
     ## END ENV
 
     function fish_title
@@ -51,11 +52,11 @@ if status is-interactive
     # BEGIN rust #
     if command -q cargo
         set -x CARGO_HOME $XDG_STATE_HOME/cargo
-        set -x PATH "$CARGO_HOME/bin:$PATH"
+        set --prepend -x PATH "$CARGO_HOME/bin"
     end
     if command -q rustup
         set -x RUSTUP_HOME $XDG_STATE_HOME/rustup
-        set -x PATH (path dirname (rustup which rustc))":$PATH"
+        set --prepend -x PATH (path dirname (rustup which rustc))
     end
     # END   rust #
 
@@ -69,7 +70,7 @@ if status is-interactive
                 echo "cache=$XDG_CACHE_HOME/npm"
             end >$NPM_CONFIG_USERCONFIG
         end
-        set -x PATH "$XDG_STATE_HOME/npm/bin:$PATH"
+        set --prepend -x PATH "$XDG_STATE_HOME/npm/bin"
     end
     # END   javascript #
 
@@ -80,7 +81,7 @@ if status is-interactive
     # BEGIN go #
     if command -q go
         set -x GOPATH "$XDG_STATE_HOME/go"
-        set -x PATH "$GOPATH/bin:$PATH"
+        set --prepend -x PATH "$GOPATH/bin"
     end
     # END go #
 
