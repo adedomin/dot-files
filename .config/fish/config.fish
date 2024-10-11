@@ -38,6 +38,9 @@ if status is-interactive
         echo "$argv"
     end
 
+    alias which 'command -s'
+    alias hash 'command -q'
+
     # BEGIN DNF aliases #
     if command -q dnf
         alias inst 'sudo dnf install'
