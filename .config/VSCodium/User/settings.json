@@ -1,6 +1,5 @@
 {
     "files.autoSave": "afterDelay",
-    "workbench.colorTheme": "Default Light+",
     "workbench.enableExperiments": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
     "editor.lineNumbers": "relative",
@@ -54,14 +53,17 @@
         { "before": [ "<S-Tab>" ],        "after": [ "<C-V>", "<Tab>" ] }
     ],
 
+    /*
     "rust-analyzer.server.path": "${userHome}/.local/state/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer",
     "rust-analyzer.server.extraEnv": {
         "RUSTUP_HOME": "${userHome}/.local/state/rustup",
         "CARGO_HOME": "${userHome}/.local/state/cargo",
         "PATH": "${userHome}/.local/state/cargo/bin:/usr/local/bin:/usr/bin"
     },
+    */
     "rust-analyzer.inlayHints.maxLength": 50,
     "rust-analyzer.checkOnSave": true,
+    "rust-analyzer.check.command": "clippy",
 
     "json.schemaDownload.enable": false,
     "typescript.disableAutomaticTypeAcquisition": true,
@@ -69,7 +71,6 @@
     "extensions.autoUpdate": false,
     "npm.fetchOnlinePackageInfo": false,
     "update.mode": "none",
-    "nix.enableLanguageServer": true,
 
     "go.buildOnSave": "workspace",
 
@@ -84,4 +85,6 @@
     "python.pythonPath": "python3",
     "python.languageServer": "None",
     "git.confirmSync": false,
+    "editor.fontFamily": "'Roboto Mono', 'monospace', monospace",
+    "editor.fontSize": 16,
 }
