@@ -67,7 +67,7 @@ if status is-interactive
         alias remo 'sudo dnf remove'
         alias updt 'sudo dnf update'
         alias srch 'dnf search -C'
-        alias what 'dnf whatprovides'
+        alias what 'dnf provides'
         alias debuginfo 'sudo dnf --enablerepo=fedora-debuginfo --enablerepo=updates-debuginfo install'
     end
     # END   DNF aliases #
