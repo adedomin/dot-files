@@ -1,4 +1,4 @@
-if command -q cargo
+if command -q cargo || test -d $XDG_STATE_HOME/cargo
     set -x CARGO_HOME $XDG_STATE_HOME/cargo
     set --prepend -x PATH "$CARGO_HOME/bin"
 end
