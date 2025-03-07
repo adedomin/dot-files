@@ -7,6 +7,11 @@ middle-click-paste = true
 cursorline = true
 cursorcolumn = true
 auto-pairs = false
+end-of-line-diagnostics = "hint"
+
+[editor.inline-diagnostics]
+cursor-line = "error"
+other-lines = "error"
 
 [editor.soft-wrap]
 enable = true
@@ -35,5 +40,8 @@ tabpad = "."
 center = ["version-control"]
 right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
 
-[keys.normal.space]
-"i" = ":toggle lsp.display-inlay-hints"
+[keys.normal.space.i]
+i = ":toggle lsp.display-inlay-hints"
+c = ":toggle inline-diagnostics.cursor-line hint disable"
+e = ":toggle end-of-line-diagnostics hint disable"
+o = ":toggle inline-diagnostics.other-lines error disable"
