@@ -1,5 +1,5 @@
 function get_term_bg -d "Get terminal background."
-    if not tty
+    if not tty -s
         return 1
     end
     # get background color
