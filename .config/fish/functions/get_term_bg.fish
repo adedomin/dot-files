@@ -4,6 +4,7 @@ function get_term_bg -d "Get terminal background."
     end
     # get background color
     read \
+        --silent \
         --nchars 21 \
         --delimiter / \
         --prompt-str \e']11;?'\a \
