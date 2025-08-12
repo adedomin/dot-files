@@ -12,3 +12,8 @@
 	defaultRemote = origin
 [init]
 	defaultbranch = master
+[push]
+	autoSetupRemote = true
+[core]
+	autocrlf = false
+	eol = lf
