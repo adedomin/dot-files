@@ -3,6 +3,7 @@ if status is-interactive
     set --prepend -x PATH "$XDG_CONFIG_HOME/zsh/util-bin:$HOME/.local/bin"
     alias which 'command -s'
     alias hash 'command -q'
+    bind ctrl-c cancel-commandline
     # Get SSH auth from logged in machine
     if set -q SSH_CLIENT && ! set -q SSH_AUTH_SOCK
         set -x SSH_AUTH_SOCK "$(

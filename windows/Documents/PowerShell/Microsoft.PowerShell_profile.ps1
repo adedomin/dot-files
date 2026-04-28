@@ -1,8 +1,3 @@
-Set-PSReadlineKeyHandler -Key Tab -Function Complete
-Set-PSReadlineKeyHandler -Key Shift+Tab -Function TabCompletePrevious
-Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
-
 Set-PSReadlineOption `
   -BellStyle None `
   -EditMode Emacs `
@@ -12,7 +7,16 @@ Set-PSReadlineOption `
     Parameter = 'Green'
   }
 
-$PSDefaultParameterValues['Out-File:Encoding'] = 'UTF8NoBOM'
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
+Set-PSReadlineKeyHandler -Key Shift+Tab -Function TabCompletePrevious
+Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
+
+if ($PSEdition -ne 'Desktop') {
+  $PSDefaultParameterValues['Out-File:Encoding'] = 'UTF8NoBOM'
+} else {
+  $PSDefaultParameterValues['Out-File:Encoding'] = 'ASCII'
+}
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Set-Alias which Get-Command

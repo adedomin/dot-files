@@ -2,9 +2,11 @@ function host_color
     if set -q custom_user_hash_color
         return
     end
-    if get_term_bg
-        is_light_color $term_bg_red $term_bg_green $term_bg_blue
-        set --local is_light_back $status
+    # TODO: Broken, use global variable instead.
+    #if get_term_bg
+    #  is_light_color $term_bg_red $term_bg_green $term_bg_blue
+    #  set --local is_light_back $status
+    if set -q is_light_back
         set --local i 0
         while test $i -le 10
             set --local j 0
