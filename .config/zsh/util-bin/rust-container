@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 dockerfile='
 FROM registry.fedoraproject.org/fedora-minimal:44
 RUN --mount=type=cache,id=rustdev-dnfcache,target=/var/cache/dnf,sharing=locked \
@@ -20,16 +22,16 @@ if ! podman image exists "$img:$tag"; then
     popd >/dev/null
 fi
 
-podman volume create --ignore rustdev-cargohome
-podman volume create --ignore rustdev-helixconfig
-tar -cf - -C "$XDG_CONFIG_HOME/helix" . | podman volume import rustdev-helixconfig -
+podman volume create --ignore rustdev-cargohome >/dev/null
+# Note that helix is a GNU Store path on my computer.
+# podman does not like dereferencing symlinks for --volume.
 podman run \
     -it \
     --rm \
     --workdir=/work \
-    --volume="$PWD":/work:rw,z \
-    --env=COLORTERM="$COLORTERM" \
-    --volume=rustdev-helixconfig:/work/.helix:Z,noexec \
-    --env=CARGO_HOME=/cargo \
-    --volume=rustdev-cargohome:/cargo:Z \
+    --volume="${workdir:-"$PWD"}":/work:rw,z \
+    --env=COLORTERM="${COLORTERM:-truecolor}" \
+    --volume="$(realpath "$XDG_CONFIG_HOME/helix")":/root/.config/helix:ro,z,noexec \
+    --env=CARGO_HOME="/root/.cargo" \
+    --volume=rustdev-cargohome:/root/.cargo:Z \
     "$img:$tag" "${@:-bash}"
