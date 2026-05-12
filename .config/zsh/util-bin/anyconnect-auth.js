@@ -14,7 +14,7 @@ const AnyConnectAuthenticator = new Lang.Class({
     Extends: Gtk.Application,
     _init: function() {
         this.parent({
-            application_id: 'space.ghetty.AnyconnectAuthenticator',
+            application_id: 'bar.foo.AnyconnectAuthenticator',
         });
         // Connect 'activate' and 'startup' signals to the callback functions
         this.connect('startup', Lang.bind(this, this._onStartup));

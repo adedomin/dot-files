@@ -1,0 +1,35 @@
+#!/bin/bash
+dockerfile='
+FROM registry.fedoraproject.org/fedora-minimal:44
+RUN --mount=type=cache,id=rustdev-dnfcache,target=/var/cache/dnf,sharing=locked \
+    --mount=type=cache,id=rustdev-dnfhome,target=/var/lib/dnf,sharing=locked \
+   dnf -y group install c-development \
+&& dnf -y install rust clippy rustfmt rust-analyzer cargo \
+&& dnf -y install helix git cmake
+'
+
+img='localhost/rustdev'
+tag="v2026.05.12"
+
+if ! podman image exists "$img:$tag"; then
+    trap 'rm -r -f -- "$tmpdir"' EXIT
+    tmpdir="$(mktemp -d)"
+    pushd "$tmpdir" >/dev/null
+        printf '%s' "$dockerfile" > Dockerfile
+        podman build . -t "$img:$tag"
+    popd >/dev/null
+fi
+
+podman volume create --ignore rustdev-cargohome
+podman volume create --ignore rustdev-helixconfig
+tar -cf - -C "$XDG_CONFIG_HOME/helix" . | podman volume import rustdev-helixconfig -
+podman run \
+    -it \
+    --rm \
+    --workdir=/work \
+    --volume="$PWD":/work:rw,z \
+    --env=COLORTERM="$COLORTERM" \
+    --volume=rustdev-helixconfig:/work/.helix:Z,noexec \
+    --env=CARGO_HOME=/cargo \
+    --volume=rustdev-cargohome:/cargo:Z \
+    "$img:$tag" "${@:-bash}"
